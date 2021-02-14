@@ -8,7 +8,7 @@ This can be used for multiplayer servers, no admin needed.
 
 ## To Do
 1. [ ] Get local character data
-2. [ ] Parse binary data
+2. [x] Parse binary data
 1. [ ] Successfully modify quantities
 1. [ ] Successfully add/remove items from inventory
 1. [ ] Successfully change current active power

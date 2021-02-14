@@ -7,8 +7,11 @@ import (
 	"log"
 	"os"
 	"strings"
+	parser "vimacheater/pkg/parser"
+	utils "vimacheater/pkg/utils"
 )
 
+// still not sure what to make of it
 type Header struct {
 	Field1  uint32
 	Field2  uint32
@@ -99,16 +102,16 @@ func main() {
 	arr := make([]string, 1)
 	arr[0] = string_pattern
 
-	res := findAllOccurrences([]byte(player_data_string), arr)
+	res := parser.FindAllOccurrences([]byte(player_data_string), arr)
 	// fmt.Println(res)
 	string_pattern_matches := res[string_pattern]
 
 	fmt.Println("Items found: ", len(string_pattern_matches))
 
-	string_pattern_matches = reverseIntSlice(string_pattern_matches)
+	string_pattern_matches = utils.ReverseIntSlice(string_pattern_matches)
 
 	for _, match := range string_pattern_matches {
-		hasExtraByte := checkIfItemPayloadHasExtraByte(player_data_string, match)
+		hasExtraByte := parser.CheckIfItemPayloadHasExtraByte(player_data_string, match)
 		start_byte_i := match - 17
 		item_payload_size := 17
 		if hasExtraByte {
@@ -118,7 +121,7 @@ func main() {
 		item_payload_start_byte := (i + start_byte_i)
 
 		item_count_index := full_string[(i + start_byte_i)]
-		item_name := getItemName(player_data_string, start_byte_i)
+		item_name := parser.GetItemName(player_data_string, start_byte_i)
 
 		if item_name == "CookedMeat" {
 			fmt.Println("index of player data: ", i)
@@ -152,70 +155,4 @@ func readNextBytes(file *os.File, number int64) []byte {
 	}
 
 	return bytes
-}
-
-func getItemName(player_data string, start_byte_i int) string {
-	var item_name string
-	for {
-		if player_data[start_byte_i] == 0x0 {
-			break
-		}
-		item_name += string(player_data[start_byte_i])
-		start_byte_i--
-	}
-	if len(item_name) < 1 {
-		return ""
-	}
-	item_name = ReverseString(item_name)
-	// fmt.Println([]byte(item_name))
-	return strings.Replace(strings.Trim(strings.TrimSpace(item_name[1:]), "\n"), string(0xc), "", -1)
-}
-
-func checkIfItemPayloadHasExtraByte(player_data string, index int) bool {
-	extra_byte_payload_marker := string([]byte{0x6d, 0x1e, 0xf7, 0xd1})
-
-	if extra_byte_payload_marker == player_data[index+8:index+12] {
-		return true
-	}
-	return false
-}
-
-func findAllOccurrences(data []byte, searches []string) map[string][]int {
-	results := make(map[string][]int, 0)
-
-	for _, search := range searches {
-		index := len(data)
-		tmp := data
-		for true {
-			match := bytes.LastIndex(tmp[0:index], []byte(search))
-			if match == -1 {
-				break
-			} else {
-				index = match
-				results[search] = append(results[search], match)
-			}
-		}
-	}
-
-	return results
-}
-
-func reverseIntSlice(s []int) []int {
-	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
-		s[i], s[j] = s[j], s[i]
-	}
-	return s
-}
-
-func ReverseString(s string) (result string) {
-	for _, v := range s {
-		result = string(v) + result
-	}
-	return
-}
-
-func replaceAtIndex(in string, r rune, i int) string {
-	out := []rune(in)
-	out[i] = r
-	return string(out)
 }
