@@ -7,7 +7,7 @@ This tool aims to allow any player to give items to himself, or change any inven
 This can be used for multiplayer servers, no admin privileges needed.
 
 ## To Do
-1. [ ] Get local character data
+1. [x] Get local character data
 2. [x] Parse binary data
 3. [x] Successfully modify quantities
 4. [ ] Successfully add/remove items from inventory
@@ -19,6 +19,5 @@ This can be used for multiplayer servers, no admin privileges needed.
 ## Screenshots
 
 ![modified item quantities](https://github.com/marcos10soares/valheim-imacheater/blob/main/readme-img/1.jpg?raw=true)
-![valheim cheat tool](https://github.com/marcos10soares/valheim-imacheater/blob/main/readme-img/2.png?raw=true)
 ![valheim cheat tool](https://github.com/marcos10soares/valheim-imacheater/blob/main/readme-img/demo.gif?raw=true)
 
