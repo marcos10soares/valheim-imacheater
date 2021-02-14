@@ -5,11 +5,16 @@ import (
 	"encoding/binary"
 	"fmt"
 	"log"
+	"net"
+	"net/http"
 	"os"
+	"os/signal"
 	"strings"
-	"text/tabwriter"
+	gui "vimacheater/pkg/gui"
 	parser "vimacheater/pkg/parser"
 	utils "vimacheater/pkg/utils"
+
+	"github.com/zserge/lorca"
 )
 
 // still not sure what to make of it
@@ -103,51 +108,68 @@ func main() {
 
 	fmt.Println("Items found: ", len(matches))
 
-	// write as a table
-	w := tabwriter.NewWriter(os.Stdout, 10, 2, 1, ' ', 0)
-	for _, match := range matches {
-		// items payload length is variable, this checks the item payload size
-		hasExtraByte := parser.CheckIfItemPayloadHasExtraByte(player_data_string, match)
-		start_byte_i := match - 17
-		item_payload_size := 34
-		if hasExtraByte {
-			item_payload_size += 1
-		}
+	totalItems := parser.GetItems(matches, full_data, player_data_string, i)
+	fmt.Printf("Items: %v\n", totalItems)
 
-		// get payload limits index
-		item_payload_start_byte := (i + start_byte_i)
-		end_byte_i := item_payload_start_byte + item_payload_size
+	renderApp(totalItems, full_data)
+}
 
-		// get item name (this string is modified for printing reasons, do not use for changing output file)
-		item_name := parser.GetItemName(player_data_string, start_byte_i)
-
-		// change the value for the item CookedMeat
-		if item_name == "CookedMeat" {
-			full_data[item_payload_start_byte] = 20
-		}
-		// item_count := full_string[item_payload_start_byte]
-
-		// update payload
-		item_payload := []byte(full_data[item_payload_start_byte:end_byte_i])
-
-		// format string
-		s_out := fmt.Sprintf("| %s\t| Count: %d\t| % 20x \t|", item_name, item_payload[0], item_payload)
-
-		// add to table
-		fmt.Fprintln(w, s_out)
-
-		// fmt.Printf("name: %s :\t % 20x \t| len: %d, extra byte: %v\n", getItemName(player_data_string, start_byte_i), item_payload, len(item_payload), hasExtraByte)
-		// fmt.Printf("%+q", patterns)
-	}
-	// print table
-	w.Flush()
-
-	// create file copy with modified data - for debugging
-	new_file, err := os.Create("bjørn.fch")
+func renderApp(totalItems []parser.Item, full_data []byte) {
+	customArgs := []string{}
+	ui, err := lorca.New("", "", 640, 480, customArgs...)
 	if err != nil {
-		log.Fatal("Error while opening file", err)
+		log.Fatal(err)
 	}
-	new_file.Write(full_data)
-	new_file.Close()
+	defer ui.Close()
 
+	// A simple way to know when UI is ready (uses body.onload event in JS)
+	ui.Bind("start", func() {
+		log.Println("UI is ready")
+	})
+
+	// Create and bind Go object to the UI
+	c := &gui.Counter{}
+	ui.Bind("counterAdd", c.Add)
+	ui.Bind("counterValue", c.Value)
+
+	// Create and bind Go object to the UI
+	u := &gui.UiItems{
+		Items: totalItems,
+	}
+	ui.Bind("updateItems", u.UpdateItems)
+	ui.Bind("getItems", u.GetItems)
+
+	// Load HTML.
+	// You may also use `data:text/html,<base64>` approach to load initial HTML,
+	// e.g: ui.Load("data:text/html," + url.PathEscape(html))
+
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer ln.Close()
+	go http.Serve(ln, http.FileServer(FS))
+	ui.Load(fmt.Sprintf("http://%s", ln.Addr()))
+
+	// You may use console.log to debug your JS code, it will be printed via
+	// log.Println(). Also exceptions are printed in a similar manner.
+	ui.Eval(`
+		console.log("Hello, world!");
+		console.log('Multiple values:', [1, false, {"x":5}]);
+	`)
+
+	// Wait until the interrupt signal arrives or browser window is closed
+	sigc := make(chan os.Signal)
+	signal.Notify(sigc, os.Interrupt)
+	select {
+	case <-sigc:
+	case <-ui.Done():
+	}
+
+	full_data = parser.ModifyItemData(full_data, u.Items)
+
+	// fmt.Printf("stone: %d\n", u.Items[2].ModifiedCount)
+	utils.WriteOutputFile(full_data)
+
+	log.Println("exiting...")
 }

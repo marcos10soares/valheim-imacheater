@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Valheim Cheating Tools</title>
+		<link rel="shortcut icon" href="favicon.png">
+		<style>
+		* { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+		html { 
+			background: url(img/bg.jpg) no-repeat center center fixed; 
+			-webkit-background-size: cover;
+			-moz-background-size: cover;
+			-o-background-size: cover;
+			background-size: cover;
+		}
+		body { height: 100vh; align-items: center; justify-content: center; font-family: 'Helvetika Neue', Arial, sans-serif; }
+		.container { display: flex; flex-wrap: wrap;}
+		.logo { margin:auto !important; }
+		.sub-logo {margin:auto; font-size: small; color: white;}
+		.item-container { display: flex; flex-direction: column; align-items: center; font-size: 28px; color: white;}
+		.counter { text-transform: uppercase; color: #fff; font-weight: bold; font-size: 3rem; }
+
+		.count-input {width: 50px;font-size: 20px; text-align: center; padding: 5px;}
+		.item-row { display: flex; margin: 0.5rem; }
+
+		.btn-row { display: flex; align-items: center; margin: 1rem; }
+		.btn { cursor: pointer; min-width: 4em; padding: 0.3em; border-radius: 5px; text-align: center; margin: 0 1rem; box-shadow: 0 6px #8b5e00; color: white; background-color: #E4B702; position: relative; font-weight: bold; }
+		.btn:hover { box-shadow: 0 4px #8b5e00; top: 2px; }
+		.btn:active{ box-shadow: 0 1px #8b5e00; top: 5px; }
+		.debug {padding-top:20px;font-size: smaller !important; color: white; text-align: center; margin: auto;}
+		.break { flex-basis: 100%; height: 0;}
+		ul {margin: auto; padding: 20px;}
+		</style>
+	</head>
+	<body onload=start()>
+		<!-- UI layout -->
+		<div class="container">
+			<img class="logo" src="img/logo.png" alt="">
+			<div class="break"></div>
+			<p class="sub-logo">I'macheater Cheating Tools</p>
+		</div>
+		
+		<div class="break"></div>
+		<br>
+		<div class="item-container">
+			<div class="counter"></div>
+			<div class="btn-row">
+				<!-- <div class="btn btn-incr">+1</div>
+				<div class="btn btn-decr">-1</div> -->
+				<div class="btn items-get">Load Items</div>
+				<div class="btn items-save">Save Items</div>
+			</div>
+		</div>
+		<div class="break"></div>
+		<div class="container">
+			<ul></ul>
+		</div>
+		<div class="break"></div>
+		<div class="debug"></div>
+
+		<!-- Connect UI actions to Go functions -->
+		<script>
+			// const counter = document.querySelector('.counter');
+			// const debug = document.querySelector('.debug');
+			// const btnIncr = document.querySelector('.btn-incr');
+			// const btnDecr = document.querySelector('.btn-decr');
+			const btnItemsSave = document.querySelector('.items-save');
+			const btnItemsGet = document.querySelector('.items-get');
+
+			// We use async/await because Go functions are asynchronous
+			// const render = async () => {
+			// 	counter.innerText = `Count: ${await window.counterValue()}`;
+			// };
+
+			const list_render = async () => {
+				var jsonObj = JSON.parse(await window.getItems())
+				original_json = jsonObj
+				var new_items = []
+				jsonObj.Items.forEach(element => {
+					this_element = {
+						name: element.Name,
+						count: element.OriginalCount,
+						index: element.index
+					}
+					new_items.push(this_element)
+				});
+
+				var ul = document.querySelector("ul");
+				ul.classList.add("item-container")
+
+				for (var i = 0; i < new_items.length; i++) {
+					var item = new_items[i];
+
+					var listItem = document.createElement("li");
+					listItem.classList.add("item-row")
+
+					var item_name = document.createElement("div");
+					item_name.classList.add("item-name")
+					item_name.textContent = item.name;
+					listItem.append(item_name);
+
+					ul.appendChild(listItem);
+
+					var item_count = document.createElement("input");
+					item_count.classList.add("count-input")
+					item_count.setAttribute("type", "number");
+					item_count.value = item.count;
+					listItem.append(item_count);
+				}
+				// items_string = JSON.stringify(new_items)
+				// debug.innerText = `Debug: ${items_string}`;
+			};
+
+			btnItemsSave.addEventListener('click', async () => {
+				console.log("clicked update items");
+				var lis = document.getElementsByClassName("count-input")
+
+				int_array = []
+				for (let i = 0; i < lis.length; i++) {
+					const el = lis[i];
+					int_array.push(parseInt(el.value))
+				}
+
+				console.log(int_array)
+
+				await updateItems(JSON.stringify(int_array)); // Call Go function
+			});
+
+			btnItemsGet.addEventListener('click', async () => {
+				console.log("clicked get items");
+				await getItems(); // Call Go function
+				list_render();
+			});
+
+			render();
+		</script>
+	</body>
+</html>

@@ -46,3 +46,13 @@ func CleanString(s string) string {
 	processedString := reg.ReplaceAllString(s, "")
 	return processedString
 }
+
+func WriteOutputFile(full_data []byte) {
+	// create file copy with modified data - for debugging
+	new_file, err := os.Create("output/bjørn.fch")
+	if err != nil {
+		log.Fatal("Error while opening file", err)
+	}
+	new_file.Write(full_data)
+	new_file.Close()
+}

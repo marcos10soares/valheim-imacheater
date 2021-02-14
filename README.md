@@ -9,8 +9,8 @@ This can be used for multiplayer servers, no admin needed.
 ## To Do
 1. [ ] Get local character data
 2. [x] Parse binary data
-1. [ ] Successfully modify quantities
-1. [ ] Successfully add/remove items from inventory
-1. [ ] Successfully change current active power
-1. [ ] Successfully change skill levels
-1. [ ] Create GUI Interface
+3. [x] Successfully modify quantities
+4. [ ] Successfully add/remove items from inventory
+5. [ ] Successfully change current active power
+6. [ ] Successfully change skill levels
+7. [x] Create GUI Interface
