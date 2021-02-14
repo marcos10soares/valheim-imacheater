@@ -1,120 +1,100 @@
 package main
 
 import (
-	"bytes"
-	"encoding/binary"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	gui "vimacheater/pkg/gui"
-	parser "vimacheater/pkg/parser"
-	utils "vimacheater/pkg/utils"
+	"vimacheater/pkg/parser"
 
 	"github.com/zserge/lorca"
 )
 
-// still not sure what to make of it
-type Header struct {
-	Field1  uint32
-	Field2  uint32
-	Field3  uint32
-	Field4  uint32
-	Field5  uint32
-	Field6  uint32
-	Field7  uint32
-	Field8  uint32
-	Field9  uint32
-	Field10 uint32
-	Field11 uint32
-	Field12 uint32
-	Field13 uint32
-	Field14 uint32
-	Field15 uint32
-	Field16 uint32
-	Field17 uint32
-	Field18 uint32
-	Field19 uint32
-	Field20 uint32
-	Field21 uint32
-	Field22 uint32
-	Field23 uint32
-	Field24 uint32
-}
-
-const path = "\\AppData\\LocalLow\\IronGate\\Valheim\\Characters\\"
-
 func main() {
-	// config, to be removed when GUI is created
-	path := "files/bjørn.fch" // bjørn
-	charname := "Bjørn"
+	// // config, to be removed when GUI is created
+	// var path string
+	// // charname := "Bjørn"
 
-	// open selected character
-	file, err := os.Open(path)
-	if err != nil {
-		log.Fatal("Error while opening file", err)
-	}
+	// user, err := utils.GetCurrentUser()
+	// if err != nil {
+	// 	log.Println(err)
+	// 	os.Exit(0)
+	// }
 
-	// get total amount of bytes
-	file_stats, err := file.Stat()
-	if err != nil {
-		log.Fatal("could not get file size", err)
-	}
-	file_size := file_stats.Size()
-	fmt.Println("file size: ", file_size)
+	// if runtime.GOOS == "windows" { // production
+	// 	path = user.HomeDir + "\\AppData\\LocalLow\\IronGate\\Valheim\\Characters\\"
+	// } else { // mac - for debugging
+	// 	path = "files/" // bjørn
+	// }
 
-	// read all data and close file
-	full_data := utils.ReadNextBytes(file, file_size)
-	file.Close()
+	// fmt.Print(utils.GetAllAvailableCharacters(path))
 
-	fmt.Println("Character: ", charname)
-	full_string := string(full_data)
-	i := strings.Index(full_string, charname)
+	// // open selected character
+	// file, err := os.Open(path)
+	// if err != nil {
+	// 	log.Fatal("Error while opening file", err)
+	// }
 
-	// parse header, still not sure of structure format and meaning, probably date and time somewhere?
-	header := Header{}
-	buffer := bytes.NewBuffer(full_data[:96])
-	err = binary.Read(buffer, binary.LittleEndian, &header)
-	if err != nil {
-		log.Fatal("binary.Read failed", err)
-	}
-	// fmt.Printf("Header data:\n%+v\n", header)
+	// // get total amount of bytes
+	// file_stats, err := file.Stat()
+	// if err != nil {
+	// 	log.Fatal("could not get file size", err)
+	// }
+	// file_size := file_stats.Size()
+	// fmt.Println("file size: ", file_size)
 
-	player_data_string := full_string[i:]
+	// // read all data and close file
+	// full_data := utils.ReadNextBytes(file, file_size)
+	// file.Close()
 
-	// pattern to look for in items
-	byte_pattern := []byte{1, 0, 0, 0, 0, 0, 0, 0}
-	string_pattern := string(byte_pattern)
+	// fmt.Println("Character: ", charname)
+	// full_string := string(full_data)
+	// i := strings.Index(full_string, charname)
 
-	// create a slice of patterns to look for
-	patterns := make([]string, 1)
-	// inserts the pattern to look for
-	patterns[0] = string_pattern
+	// // parse header, still not sure of structure format and meaning, probably date and time somewhere?
+	// header := Header{}
+	// buffer := bytes.NewBuffer(full_data[:96])
+	// err = binary.Read(buffer, binary.LittleEndian, &header)
+	// if err != nil {
+	// 	log.Fatal("binary.Read failed", err)
+	// }
+	// // fmt.Printf("Header data:\n%+v\n", header)
 
-	// finds all indexes where the pattern occurs, result is a map because there can be more patterns to look for
-	result := parser.FindAllOccurrences([]byte(player_data_string), patterns)
+	// player_data_string := full_string[i:]
 
-	// get the match indexes
-	matches := result[string_pattern]
+	// // pattern to look for in items
+	// byte_pattern := []byte{1, 0, 0, 0, 0, 0, 0, 0}
+	// string_pattern := string(byte_pattern)
 
-	// reverse order of matches
-	matches = utils.ReverseIntSlice(matches)
+	// // create a slice of patterns to look for
+	// patterns := make([]string, 1)
+	// // inserts the pattern to look for
+	// patterns[0] = string_pattern
 
-	// clean matches by verifying some extra patterns on each item
-	matches = parser.CleanItemMatches(full_data, player_data_string, i, matches)
+	// // finds all indexes where the pattern occurs, result is a map because there can be more patterns to look for
+	// result := parser.FindAllOccurrences([]byte(player_data_string), patterns)
 
-	fmt.Println("Items found: ", len(matches))
+	// // get the match indexes
+	// matches := result[string_pattern]
 
-	totalItems := parser.GetItems(matches, full_data, player_data_string, i)
-	fmt.Printf("Items: %v\n", totalItems)
+	// // reverse order of matches
+	// matches = utils.ReverseIntSlice(matches)
 
-	renderApp(totalItems, full_data)
+	// // clean matches by verifying some extra patterns on each item
+	// matches = parser.CleanItemMatches(full_data, player_data_string, i, matches)
+
+	// fmt.Println("Items found: ", len(matches))
+
+	// totalItems := parser.GetItems(matches, full_data, player_data_string, i)
+	// fmt.Printf("Items: %v\n", totalItems)
+
+	renderApp()
 }
 
-func renderApp(totalItems []parser.Item, full_data []byte) {
+func renderApp() {
 	customArgs := []string{}
 	ui, err := lorca.New("", "", 640, 480, customArgs...)
 	if err != nil {
@@ -129,10 +109,11 @@ func renderApp(totalItems []parser.Item, full_data []byte) {
 
 	// Create and bind Go object to the UI
 	u := &gui.UiItems{
-		Items: totalItems,
+		Items: []parser.Item{},
 	}
 	ui.Bind("updateItems", u.UpdateItems)
 	ui.Bind("getItems", u.GetItems)
+	ui.Bind("getChars", u.GetChars)
 
 	// Load HTML.
 	// You may also use `data:text/html,<base64>` approach to load initial HTML,
@@ -148,10 +129,10 @@ func renderApp(totalItems []parser.Item, full_data []byte) {
 
 	// You may use console.log to debug your JS code, it will be printed via
 	// log.Println(). Also exceptions are printed in a similar manner.
-	ui.Eval(`
-		console.log("Hello, world!");
-		console.log('Multiple values:', [1, false, {"x":5}]);
-	`)
+	// ui.Eval(`
+	// 	console.log("Hello, world!");
+	// 	console.log('Multiple values:', [1, false, {"x":5}]);
+	// `)
 
 	// Wait until the interrupt signal arrives or browser window is closed
 	sigc := make(chan os.Signal)
@@ -161,10 +142,10 @@ func renderApp(totalItems []parser.Item, full_data []byte) {
 	case <-ui.Done():
 	}
 
-	full_data = parser.ModifyItemData(full_data, u.Items)
+	// full_data = parser.ModifyItemData(full_data, u.Items)
 
-	// fmt.Printf("stone: %d\n", u.Items[2].ModifiedCount)
-	utils.WriteOutputFile(full_data)
+	// // fmt.Printf("stone: %d\n", u.Items[2].ModifiedCount)
+	// utils.WriteOutputFile(full_data)
 
 	log.Println("exiting...")
 }

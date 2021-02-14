@@ -6,8 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
+	"runtime"
 	"sync"
 	parser "vimacheater/pkg/parser"
+	"vimacheater/pkg/utils"
 )
 
 // Go types that are bound to the UI must be thread-safe, because each binding
@@ -18,16 +21,23 @@ type UiItems struct {
 	Items []parser.Item
 }
 
-func (u *UiItems) GetItems() string {
+// type UiChars struct {
+// 	sync.Mutex
+// 	Chars []string
+// }
+
+func (u *UiItems) GetItems(character string) string {
 	u.Lock()
 	defer u.Unlock()
+
+	u.Items = parser.LoadItems(character)
 
 	b, err := json.Marshal(u)
 	if err != nil {
 		fmt.Println(err)
 		return ""
 	}
-	fmt.Println(string(b))
+	fmt.Println("debug getitems: ", string(b))
 	return string(b)
 }
 
@@ -45,4 +55,25 @@ func (u *UiItems) UpdateItems(str string) {
 		u.Items[i].ModifiedCount = v
 	}
 	log.Println("Items updated.")
+}
+
+func (u *UiItems) GetChars() []string {
+	u.Lock()
+	defer u.Unlock()
+
+	var path string
+
+	user, err := utils.GetCurrentUser()
+	if err != nil {
+		log.Println(err)
+		os.Exit(0)
+	}
+
+	if runtime.GOOS == "windows" { // production
+		path = user.HomeDir + "\\AppData\\LocalLow\\IronGate\\Valheim\\Characters\\"
+	} else { // mac - for debugging
+		path = "files/" // bjørn
+	}
+
+	return utils.GetAllAvailableCharacters(path)
 }

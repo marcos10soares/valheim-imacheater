@@ -18,6 +18,7 @@
 		.sub-logo {margin:auto; font-size: small; color: white;}
 		.item-container { display: flex; flex-direction: column; align-items: center; font-size: 28px; color: white;}
 		.counter { text-transform: uppercase; color: #fff; font-weight: bold; font-size: 3rem; }
+		.char-selection {font-size: 18px;}
 
 		.count-input {width: 50px;font-size: 20px; text-align: center; padding: 5px;}
 		.item-row { display: flex; margin: 0.5rem; }
@@ -41,11 +42,21 @@
 		
 		<div class="break"></div>
 		<br>
+
+		<div class="item-container">
+			<form>
+				<label>Choose a character:</label>
+				<select id="selection" class="char-selection">
+				</select">
+				<br><br>
+				<input type="submit" value="Submit" style="display: none;">
+			</form>
+			<!-- <div class="btn char-select">Select</div> -->
+		</div>
+
 		<div class="item-container">
 			<div class="counter"></div>
 			<div class="btn-row">
-				<!-- <div class="btn btn-incr">+1</div>
-				<div class="btn btn-decr">-1</div> -->
 				<div class="btn items-get">Load Items</div>
 				<div class="btn items-save">Save Items</div>
 			</div>
@@ -66,14 +77,21 @@
 			const btnItemsSave = document.querySelector('.items-save');
 			const btnItemsGet = document.querySelector('.items-get');
 
+			console.log(btnItemsSave);
+
 			// We use async/await because Go functions are asynchronous
 			// const render = async () => {
 			// 	counter.innerText = `Count: ${await window.counterValue()}`;
 			// };
 
-			const list_render = async () => {
-				var jsonObj = JSON.parse(await window.getItems())
-				original_json = jsonObj
+			const list_render = async (jsonItems) => {
+				// delete existing options before populating new ones
+				var elements = document.getElementsByClassName("item-row");
+				while(elements.length > 0){
+					elements[0].parentNode.removeChild(elements[0]);
+				}
+
+				var jsonObj = JSON.parse(jsonItems)
 				var new_items = []
 				jsonObj.Items.forEach(element => {
 					this_element = {
@@ -81,7 +99,7 @@
 						count: element.OriginalCount,
 						index: element.index
 					}
-					new_items.push(this_element)
+					new_items.push(this_element);
 				});
 
 				var ul = document.querySelector("ul");
@@ -117,19 +135,36 @@
 				int_array = []
 				for (let i = 0; i < lis.length; i++) {
 					const el = lis[i];
-					int_array.push(parseInt(el.value))
+					int_array.push(parseInt(el.value));
 				}
-
-				console.log(int_array)
-
 				await updateItems(JSON.stringify(int_array)); // Call Go function
 			});
 
 			btnItemsGet.addEventListener('click', async () => {
 				console.log("clicked get items");
-				await getItems(); // Call Go function
-				list_render();
+				var selection = document.getElementById( "selection" );
+
+				console.log(selection)
+				
+				jsonItems = await getItems(selection.options[selection.selectedIndex].value); // Call Go function
+				list_render(jsonItems);
 			});
+
+			const render = async () => {
+				console.log("ran get characters");
+				chars = await getChars(); // Call Go function
+				console.log(chars)
+
+				var select = document.querySelector(".char-selection");
+				
+				chars.forEach(char => {
+					var option = document.createElement("option");
+					option.setAttribute("value", char);
+					option.textContent = char;
+					select.append(option)
+				});
+				// list_render();
+			}
 
 			render();
 		</script>
