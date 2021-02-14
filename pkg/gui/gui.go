@@ -10,6 +10,9 @@ import (
 	parser "vimacheater/pkg/parser"
 )
 
+// Go types that are bound to the UI must be thread-safe, because each binding
+// is executed in its own goroutine. In this simple case we may use atomic
+// operations, but for more complex cases one should use proper synchronization.
 type UiItems struct {
 	sync.Mutex
 	Items []parser.Item
@@ -42,25 +45,4 @@ func (u *UiItems) UpdateItems(str string) {
 		u.Items[i].ModifiedCount = v
 	}
 	log.Println("Items updated.")
-}
-
-// Go types that are bound to the UI must be thread-safe, because each binding
-// is executed in its own goroutine. In this simple case we may use atomic
-// operations, but for more complex cases one should use proper synchronization.
-type Counter struct {
-	sync.Mutex
-	count int
-}
-
-func (c *Counter) Add(n int) {
-	c.Lock()
-	defer c.Unlock()
-	c.count = c.count + n
-	fmt.Println("add +1")
-}
-
-func (c *Counter) Value() int {
-	c.Lock()
-	defer c.Unlock()
-	return c.count
 }

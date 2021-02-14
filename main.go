@@ -128,11 +128,6 @@ func renderApp(totalItems []parser.Item, full_data []byte) {
 	})
 
 	// Create and bind Go object to the UI
-	c := &gui.Counter{}
-	ui.Bind("counterAdd", c.Add)
-	ui.Bind("counterValue", c.Value)
-
-	// Create and bind Go object to the UI
 	u := &gui.UiItems{
 		Items: totalItems,
 	}
