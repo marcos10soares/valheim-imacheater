@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"text/tabwriter"
 	parser "vimacheater/pkg/parser"
 	utils "vimacheater/pkg/utils"
 )
@@ -39,15 +40,20 @@ type Header struct {
 	Field24 uint32
 }
 
+const path = "\\AppData\\LocalLow\\IronGate\\Valheim\\Characters\\"
+
 func main() {
+	// config, to be removed when GUI is created
 	path := "files/bjørn.fch" // bjørn
 	charname := "Bjørn"
 
+	// open selected character
 	file, err := os.Open(path)
 	if err != nil {
 		log.Fatal("Error while opening file", err)
 	}
 
+	// get total amount of bytes
 	file_stats, err := file.Stat()
 	if err != nil {
 		log.Fatal("could not get file size", err)
@@ -55,92 +61,86 @@ func main() {
 	file_size := file_stats.Size()
 	fmt.Println("file size: ", file_size)
 
-	// fmt.Printf("%s opened\n", path)
-
-	header := Header{}
-	// data := readNextBytes(file, 96) //  24 * uint32 (4) = 96 bytes
-
+	// read all data and close file
 	full_data := readNextBytes(file, file_size)
-
 	file.Close()
 
-	new_file, err := os.Create("bjørn.fch")
-	if err != nil {
-		log.Fatal("Error while opening file", err)
-	}
-
-	// for i := 0; i < 100; i++ {
-	// 	fmt.Printf("%x", full_data[i])
-	// }
-	// fmt.Println("-")
 	fmt.Println("Character: ", charname)
 	full_string := string(full_data)
 	i := strings.Index(full_string, charname)
-	// fmt.Println("Index: ", i)
 
-	// fmt.Println(data)
-
+	// parse header, still not sure of structure format and meaning, probably date and time somewhere?
+	header := Header{}
 	buffer := bytes.NewBuffer(full_data[:96])
 	err = binary.Read(buffer, binary.LittleEndian, &header)
 	if err != nil {
 		log.Fatal("binary.Read failed", err)
 	}
-
-	// fmt.Printf("Parsed data:\n%+v\n", header)
+	// fmt.Printf("Header data:\n%+v\n", header)
 
 	player_data_string := full_string[i:]
 
-	// fmt.Println("Full data: \n", player_data_string)
-
+	// pattern to look for in items
 	byte_pattern := []byte{1, 0, 0, 0, 0, 0, 0, 0}
 	string_pattern := string(byte_pattern)
 
-	// string_pattern_i := strings.Index(player_data_string, string_pattern)
-	// fmt.Println("index: ", string_pattern_i)
-	// fmt.Println(player_data_string[string_pattern_i-17 : string_pattern_i+17])
+	// create a slice of patterns to look for
+	patterns := make([]string, 1)
+	// inserts the pattern to look for
+	patterns[0] = string_pattern
 
-	arr := make([]string, 1)
-	arr[0] = string_pattern
+	// finds all indexes where the pattern occurs, result is a map because there can be more patterns to look for
+	result := parser.FindAllOccurrences([]byte(player_data_string), patterns)
 
-	res := parser.FindAllOccurrences([]byte(player_data_string), arr)
-	// fmt.Println(res)
-	string_pattern_matches := res[string_pattern]
+	// get the match indexes
+	matches := result[string_pattern]
+	fmt.Println("Items found: ", len(matches))
 
-	fmt.Println("Items found: ", len(string_pattern_matches))
+	// reverse order of matches
+	matches = utils.ReverseIntSlice(matches)
 
-	string_pattern_matches = utils.ReverseIntSlice(string_pattern_matches)
-
-	for _, match := range string_pattern_matches {
+	// write as a table
+	w := tabwriter.NewWriter(os.Stdout, 10, 2, 1, ' ', 0)
+	for _, match := range matches {
+		// items payload length is variable, this checks the item payload size
 		hasExtraByte := parser.CheckIfItemPayloadHasExtraByte(player_data_string, match)
 		start_byte_i := match - 17
-		item_payload_size := 17
+		item_payload_size := 34
 		if hasExtraByte {
 			item_payload_size += 1
 		}
 
+		// get payload limits index
 		item_payload_start_byte := (i + start_byte_i)
+		end_byte_i := item_payload_start_byte + item_payload_size
 
-		item_count_index := full_string[(i + start_byte_i)]
+		// get item name (this string is modified for printing reasons, do not use for changing output file)
 		item_name := parser.GetItemName(player_data_string, start_byte_i)
 
+		// change the value for the item CookedMeat
 		if item_name == "CookedMeat" {
-			fmt.Println("index of player data: ", i)
-			fmt.Println("index of item payload in player data:", start_byte_i)
-
-			// full_string = replaceAtIndex(full_string, rune(20), count_byte_index)
 			full_data[item_payload_start_byte] = 20
-			// fmt.Printf("new count: %s \n", full_data[count_byte_index-10:count_byte_index])
-			// fmt.Println("new count index: ", count_byte_index)
-			// item_count_index = full_string[count_byte_index]
 		}
-		item_payload := []byte(full_data[item_payload_start_byte : item_payload_start_byte+item_payload_size])
-		fmt.Println("Count:", item_count_index)
-		fmt.Printf("name: %s | Count: %d |\t % 20x\n", item_name, item_payload[0], item_payload)
-		// fmt.Printf("name: %s :\t % 20x\n", getItemName(player_data_string, start_byte_i), item_payload)
-		// fmt.Printf("name: %s :\t % 20x \t| len: %d, extra byte: %v\n", getItemName(player_data_string, start_byte_i), item_payload, len(item_payload), hasExtraByte)
-		// fmt.Printf("%+q", arr)
-	}
+		// item_count := full_string[item_payload_start_byte]
+		item_payload := []byte(full_data[item_payload_start_byte:end_byte_i])
 
+		// format string
+		s_out := fmt.Sprintf("| %s\t| Count: %d\t| % 20x \t|", item_name, item_payload[0], item_payload)
+
+		// add to table
+		fmt.Fprintln(w, s_out)
+
+		// fmt.Printf("name: %s :\t % 20x \t| len: %d, extra byte: %v\n", getItemName(player_data_string, start_byte_i), item_payload, len(item_payload), hasExtraByte)
+		// fmt.Printf("%+q", patterns)
+	}
+	// print table
+	w.Flush()
+
+	// create file copy with modified data - for debugging
+	new_file, err := os.Create("bjørn.fch")
+	if err != nil {
+		log.Fatal("Error while opening file", err)
+	}
 	new_file.Write(full_data)
 	new_file.Close()
 

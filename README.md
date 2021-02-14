@@ -2,7 +2,7 @@
 Valheim cheat tool to modify character data
 
 ## Introduction
-This tool aims to allow any player to give items to himself items, or change any inventory item type or quantity.
+This tool aims to allow any player to give items to himself, or change any inventory item type or quantity.
 
 This can be used for multiplayer servers, no admin needed.
 

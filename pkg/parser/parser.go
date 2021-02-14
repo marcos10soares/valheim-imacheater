@@ -19,8 +19,7 @@ func GetItemName(player_data string, start_byte_i int) string {
 		return ""
 	}
 	item_name = utils.ReverseString(item_name)
-	// fmt.Println([]byte(item_name))
-	return strings.Replace(strings.Trim(strings.TrimSpace(item_name[1:]), "\n"), string(0xc), "", -1)
+	return utils.CleanString(strings.Replace(strings.Trim(strings.TrimSpace(item_name[1:]), "\n"), string(0xc), "", -1))
 }
 
 func CheckIfItemPayloadHasExtraByte(player_data string, index int) bool {
