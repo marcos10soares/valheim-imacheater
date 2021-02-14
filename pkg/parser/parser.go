@@ -50,3 +50,31 @@ func FindAllOccurrences(data []byte, searches []string) map[string][]int {
 
 	return results
 }
+
+func CleanItemMatches(full_data []byte, player_data_string string, i int, matches []int) []int {
+	var clean_matches []int
+	for _, match := range matches {
+		// items payload length is variable, this checks the item payload size
+		hasExtraByte := CheckIfItemPayloadHasExtraByte(player_data_string, match)
+		start_byte_i := match - 17
+		item_payload_size := 34
+		if hasExtraByte {
+			item_payload_size += 1
+		}
+
+		// get payload limits index
+		item_payload_start_byte := (i + start_byte_i)
+		end_byte_i := item_payload_start_byte + item_payload_size
+
+		// get payload
+		item_payload := []byte(full_data[item_payload_start_byte:end_byte_i])
+
+		//verify payload
+		if (string(item_payload[1:4]) != string([]byte{0, 0, 0})) || (string(item_payload[29:33]) != string([]byte{0, 0, 0, 0})) {
+			continue
+		}
+
+		clean_matches = append(clean_matches, match)
+	}
+	return clean_matches
+}
