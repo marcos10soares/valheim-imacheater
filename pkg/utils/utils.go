@@ -2,8 +2,20 @@ package utils
 
 import (
 	"log"
+	"os"
 	"regexp"
 )
+
+func ReadNextBytes(file *os.File, number int64) []byte {
+	bytes := make([]byte, number)
+
+	_, err := file.Read(bytes)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return bytes
+}
 
 func ReverseIntSlice(s []int) []int {
 	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {

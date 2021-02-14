@@ -62,7 +62,7 @@ func main() {
 	fmt.Println("file size: ", file_size)
 
 	// read all data and close file
-	full_data := readNextBytes(file, file_size)
+	full_data := utils.ReadNextBytes(file, file_size)
 	file.Close()
 
 	fmt.Println("Character: ", charname)
@@ -94,10 +94,14 @@ func main() {
 
 	// get the match indexes
 	matches := result[string_pattern]
-	fmt.Println("Items found: ", len(matches))
 
 	// reverse order of matches
 	matches = utils.ReverseIntSlice(matches)
+
+	// clean matches by verifying some extra patterns on each item
+	matches = parser.CleanItemMatches(full_data, player_data_string, i, matches)
+
+	fmt.Println("Items found: ", len(matches))
 
 	// write as a table
 	w := tabwriter.NewWriter(os.Stdout, 10, 2, 1, ' ', 0)
@@ -122,6 +126,8 @@ func main() {
 			full_data[item_payload_start_byte] = 20
 		}
 		// item_count := full_string[item_payload_start_byte]
+
+		// update payload
 		item_payload := []byte(full_data[item_payload_start_byte:end_byte_i])
 
 		// format string
@@ -144,15 +150,4 @@ func main() {
 	new_file.Write(full_data)
 	new_file.Close()
 
-}
-
-func readNextBytes(file *os.File, number int64) []byte {
-	bytes := make([]byte, number)
-
-	_, err := file.Read(bytes)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return bytes
 }
