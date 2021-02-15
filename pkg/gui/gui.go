@@ -6,10 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"runtime"
 	"sync"
-	parser "vimacheater/pkg/parser"
+	"vimacheater/pkg/parser"
 	"vimacheater/pkg/utils"
 )
 
@@ -18,8 +17,9 @@ import (
 // operations, but for more complex cases one should use proper synchronization.
 type UiItems struct {
 	sync.Mutex
-	Items    []parser.Item
-	FileData []byte
+	Items     []parser.Item
+	FileData  []byte
+	Character string
 }
 
 // type UiChars struct {
@@ -32,9 +32,7 @@ func (u *UiItems) GetItems(character string) string {
 	defer u.Unlock()
 
 	u.Items, u.FileData = parser.LoadItems(character)
-
-	// tmpItems := []parser.Item{}
-	// tmpItems = u.Items
+	u.Character = character
 
 	b, err := json.Marshal(u.Items)
 	if err != nil {
@@ -62,7 +60,7 @@ func (u *UiItems) UpdateItems(str string) {
 
 	full_data := parser.ModifyItemData(u.FileData, u.Items)
 
-	utils.WriteOutputFile(full_data)
+	utils.WriteOutputFile(full_data, u.Character)
 	log.Println("Items saved.")
 }
 
@@ -74,17 +72,17 @@ func (u *UiItems) GetChars() []string {
 
 	user, err := utils.GetCurrentUser()
 	if err != nil {
-		log.Println(err)
-		os.Exit(0)
+		log.Fatal(err)
 	}
 
 	if runtime.GOOS == "windows" { // production
-		path = user.HomeDir + "\\AppData\\LocalLow\\IronGate\\Valheim\\characters\\"
+		path = user.HomeDir + utils.WinPath
 		fmt.Println(path)
 
 	} else { // mac - for debugging
 		path = "files/" // bjørn
 	}
+	utils.CharactersFolder = path
 
 	return utils.GetAllAvailableCharacters(path)
 }

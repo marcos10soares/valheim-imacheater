@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -8,7 +10,19 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+	"time"
 )
+
+const WinPath = "\\AppData\\LocalLow\\IronGate\\Valheim\\characters\\"
+const MacPath = "files/" // for debugging
+var CharactersFolder string
+
+const Bckp_folder = "./bckp/"
+
+func Init() {
+	// check if bckp folder exists otherwise creates it
+	CreateBckpFolder(Bckp_folder)
+}
 
 func ReadNextBytes(file *os.File, number int64) []byte {
 	bytes := make([]byte, number)
@@ -51,14 +65,25 @@ func CleanString(s string) string {
 	return processedString
 }
 
-func WriteOutputFile(full_data []byte) {
-	// create file copy with modified data - for debugging
-	new_file, err := os.Create("output/bjørn.fch")
+func WriteOutputFile(full_data []byte, character string) {
+	path := CharactersFolder
+
+	character_filename := character + ".fch"
+
+	// backup original file
+	_, err := FileCopy(path+character_filename, Bckp_folder+character+"__"+GetTimestampString()+".fch")
+	if err != nil {
+		log.Fatal("Could not backup original file.")
+	}
+
+	// update file
+	char_file, err := os.OpenFile(path+character_filename, os.O_RDWR, 0666)
 	if err != nil {
 		log.Fatal("Error while opening file", err)
 	}
-	new_file.Write(full_data)
-	new_file.Close()
+	char_file.Truncate(0)
+	char_file.Write(full_data)
+	char_file.Close()
 }
 
 func GetCurrentUser() (*user.User, error) {
@@ -73,7 +98,6 @@ func GetAllAvailableCharacters(dir string) []string {
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		log.Fatal(err)
-		os.Exit(0)
 	}
 
 	var characters []string
@@ -103,26 +127,64 @@ func GetFileNameFromPath(path string) string {
 	return filename
 }
 
+func FileCopy(src, dst string) (int64, error) {
+	sourceFileStat, err := os.Stat(src)
+	if err != nil {
+		// fmt.Println(err)
+		return 0, err
+	}
+
+	if !sourceFileStat.Mode().IsRegular() {
+		return 0, fmt.Errorf("%s is not a regular file", src)
+	}
+
+	source, err := os.Open(src)
+	if err != nil {
+		// fmt.Println(err)
+		return 0, err
+	}
+	defer source.Close()
+
+	destination, err := os.Create(dst)
+	if err != nil {
+		// fmt.Println(err)
+		return 0, err
+	}
+	defer destination.Close()
+	nBytes, err := io.Copy(destination, source)
+	// fmt.Println(err)
+	return nBytes, err
+}
+
+func CreateBckpFolder(path string) {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		os.Mkdir(path, 0777)
+	}
+}
+
+func GetTimestampString() string {
+	now := time.Now()
+	unixTimeUTC := time.Unix(now.Unix(), 0)
+	timestamp := unixTimeUTC.Format(time.RFC3339)
+	return strings.Replace(timestamp, ":", "_", -1)
+}
+
 // func GetCharNameFromPath(path string) string {
 // 	s := GetFileNameFromPath(path)
 // 	return
 // }
 
-// func WriteDebugFile(strs []string) {
-// 	f, err := os.Create("data.txt")
-
+// func WriteItemLogFile(charname string, data *tabwriter.Writer) {
+// 	f, err := os.Create(Bckp_folder + charname + "_itemslog_" + GetTimestampString() + ".txt")
 // 	if err != nil {
 // 		log.Fatal(err)
 // 	}
-
 // 	defer f.Close()
 
-// 	for _, str := range strs {
-// 		_, err2 := f.WriteString(str)
+// 	_, err2 := f.WriteString(data)
 
-// 		if err2 != nil {
-// 			log.Fatal(err2)
-// 		}
+// 	if err2 != nil {
+// 		log.Fatal(err2)
 // 	}
 
 // 	fmt.Println("done")

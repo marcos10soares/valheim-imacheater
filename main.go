@@ -7,8 +7,9 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	gui "vimacheater/pkg/gui"
+	"vimacheater/pkg/gui"
 	"vimacheater/pkg/parser"
+	"vimacheater/pkg/utils"
 
 	"github.com/zserge/lorca"
 )
@@ -18,6 +19,7 @@ func main() {
 }
 
 func renderApp() {
+	utils.Init()
 	customArgs := []string{}
 	ui, err := lorca.New("", "", 640, 480, customArgs...)
 	if err != nil {

@@ -6,11 +6,10 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"runtime"
 	"strings"
 	"text/tabwriter"
 	"unicode"
-	utils "vimacheater/pkg/utils"
+	"vimacheater/pkg/utils"
 )
 
 type Item struct {
@@ -124,8 +123,19 @@ func CleanItemMatches(full_data []byte, player_data_string string, i int, matche
 	return clean_matches
 }
 
-func GetItems(matches []int, full_data []byte, player_data_string string, i int) []Item {
+func GetItems(matches []int, full_data []byte, player_data_string string, i int, character string) []Item {
 	totalItems := []Item{}
+
+	// file for debug only FOR DEBUG
+	items_log_file_debug, err := os.Create(utils.Bckp_folder + character + "_itemslog_" + utils.GetTimestampString() + ".txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer items_log_file_debug.Close()
+
+	// write as a table
+	w_debug := tabwriter.NewWriter(items_log_file_debug, 10, 2, 1, ' ', 0)
+	//// END OF DEBUG
 
 	// write as a table
 	w := tabwriter.NewWriter(os.Stdout, 10, 2, 1, ' ', 0)
@@ -145,12 +155,6 @@ func GetItems(matches []int, full_data []byte, player_data_string string, i int)
 		// get item name (this string is modified for printing reasons, do not use for changing output file)
 		item_name := GetItemName(player_data_string, start_byte_i)
 
-		// change the value for the item CookedMeat
-		// if item_name == "CookedMeat" {
-		// 	full_data[item_payload_start_byte] = 20
-		// }
-		// item_count := full_string[item_payload_start_byte]
-
 		// get payload
 		item_payload := []byte(full_data[item_payload_start_byte:end_byte_i])
 
@@ -168,11 +172,17 @@ func GetItems(matches []int, full_data []byte, player_data_string string, i int)
 		// add to table
 		fmt.Fprintln(w, s_out)
 
+		// add TO DEBUG table
+		fmt.Fprintln(w_debug, s_out)
+
 		// fmt.Printf("name: %s :\t % 20x \t| len: %d, extra byte: %v\n", getItemName(player_data_string, start_byte_i), item_payload, len(item_payload), hasExtraByte)
 		// fmt.Printf("%+q", patterns)
 	}
 	// print table
 	w.Flush()
+
+	// print to DEBUG file
+	w_debug.Flush()
 
 	return totalItems
 }
@@ -185,20 +195,19 @@ func ModifyItemData(full_data []byte, items []Item) []byte {
 }
 
 func LoadItems(character string) (loadedItems []Item, FileData []byte) {
-	var path string
+	path := utils.CharactersFolder
 
-	user, err := utils.GetCurrentUser()
-	if err != nil {
-		log.Println(err)
-		os.Exit(0)
-	}
+	// user, err := utils.GetCurrentUser()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	if runtime.GOOS == "windows" { // production
-		path = user.HomeDir + "\\AppData\\LocalLow\\IronGate\\Valheim\\characters\\"
-		fmt.Println(path)
-	} else { // mac - for debugging
-		path = "files/" // bjørn
-	}
+	// if runtime.GOOS == "windows" { // production
+	// 	path = user.HomeDir + WinPath
+	// 	fmt.Println(path)
+	// } else { // mac - for debugging
+	// 	path = MacPath
+	// }
 
 	character_path := path + character + ".fch"
 
@@ -259,7 +268,7 @@ func LoadItems(character string) (loadedItems []Item, FileData []byte) {
 
 	fmt.Println("Items found: ", len(matches))
 
-	totalItems := GetItems(matches, full_data, player_data_string, i)
+	totalItems := GetItems(matches, full_data, player_data_string, i, character)
 	fmt.Printf("Items: %v\n", totalItems)
 
 	return totalItems, full_data
