@@ -80,8 +80,10 @@ func GetAllAvailableCharacters(dir string) []string {
 
 	for _, f := range files {
 		filename := f.Name()
-		if filename[len(filename)-4:] == ".fch" {
-			characters = append(characters, GetFileNameFromPath(dir+f.Name()))
+		if len(filename) > 4 {
+			if filename[len(filename)-4:] == ".fch" {
+				characters = append(characters, GetFileNameFromPath(dir+f.Name()))
+			}
 		}
 	}
 	return characters
@@ -104,4 +106,24 @@ func GetFileNameFromPath(path string) string {
 // func GetCharNameFromPath(path string) string {
 // 	s := GetFileNameFromPath(path)
 // 	return
+// }
+
+// func WriteDebugFile(strs []string) {
+// 	f, err := os.Create("data.txt")
+
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+
+// 	defer f.Close()
+
+// 	for _, str := range strs {
+// 		_, err2 := f.WriteString(str)
+
+// 		if err2 != nil {
+// 			log.Fatal(err2)
+// 		}
+// 	}
+
+// 	fmt.Println("done")
 // }

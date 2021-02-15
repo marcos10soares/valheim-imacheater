@@ -184,7 +184,7 @@ func ModifyItemData(full_data []byte, items []Item) []byte {
 	return full_data
 }
 
-func LoadItems(character string) []Item {
+func LoadItems(character string) (loadedItems []Item, FileData []byte) {
 	var path string
 
 	user, err := utils.GetCurrentUser()
@@ -194,7 +194,8 @@ func LoadItems(character string) []Item {
 	}
 
 	if runtime.GOOS == "windows" { // production
-		path = user.HomeDir + "\\AppData\\LocalLow\\IronGate\\Valheim\\Characters\\"
+		path = user.HomeDir + "\\AppData\\LocalLow\\IronGate\\Valheim\\characters\\"
+		fmt.Println(path)
 	} else { // mac - for debugging
 		path = "files/" // bjørn
 	}
@@ -261,5 +262,5 @@ func LoadItems(character string) []Item {
 	totalItems := GetItems(matches, full_data, player_data_string, i)
 	fmt.Printf("Items: %v\n", totalItems)
 
-	return totalItems
+	return totalItems, full_data
 }

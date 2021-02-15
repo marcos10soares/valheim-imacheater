@@ -18,7 +18,8 @@ import (
 // operations, but for more complex cases one should use proper synchronization.
 type UiItems struct {
 	sync.Mutex
-	Items []parser.Item
+	Items    []parser.Item
+	FileData []byte
 }
 
 // type UiChars struct {
@@ -30,7 +31,7 @@ func (u *UiItems) GetItems(character string) string {
 	u.Lock()
 	defer u.Unlock()
 
-	u.Items = parser.LoadItems(character)
+	u.Items, u.FileData = parser.LoadItems(character)
 
 	b, err := json.Marshal(u)
 	if err != nil {
@@ -55,6 +56,11 @@ func (u *UiItems) UpdateItems(str string) {
 		u.Items[i].ModifiedCount = v
 	}
 	log.Println("Items updated.")
+
+	full_data := parser.ModifyItemData(u.FileData, u.Items)
+
+	utils.WriteOutputFile(full_data)
+	log.Println("Items saved.")
 }
 
 func (u *UiItems) GetChars() []string {
@@ -70,7 +76,9 @@ func (u *UiItems) GetChars() []string {
 	}
 
 	if runtime.GOOS == "windows" { // production
-		path = user.HomeDir + "\\AppData\\LocalLow\\IronGate\\Valheim\\Characters\\"
+		path = user.HomeDir + "\\AppData\\LocalLow\\IronGate\\Valheim\\characters\\"
+		fmt.Println(path)
+
 	} else { // mac - for debugging
 		path = "files/" // bjørn
 	}
