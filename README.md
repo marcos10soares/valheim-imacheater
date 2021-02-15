@@ -1,10 +1,10 @@
 # valheim-imacheater
-Valheim cheat tool to modify character data
+Valheim cheating tool
 
 ## Introduction
 This tool aims to allow any player to give items to himself, or change any inventory item type or quantity.
 
-This can be used for multiplayer servers, no admin privileges needed.
+**This can be used for multiplayer public servers, no admin privileges needed.**
 
 ## To Do
 1. [x] Get local character data
@@ -15,6 +15,7 @@ This can be used for multiplayer servers, no admin privileges needed.
 6. [ ] Successfully change skill levels
 7. [x] Create GUI Interface
 8. [ ] Add verification for item max limits
+9. [ ] Add option to quick fix the game to optimize performance [valheim-increase-fps-performance](https://www.pcgamer.com/valheim-increase-fps-performance/)
 
 ## Screenshots
 
