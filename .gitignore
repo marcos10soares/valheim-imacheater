@@ -6,3 +6,4 @@ recon
 output/
 vimacheater
 *.exe
+/bckp
