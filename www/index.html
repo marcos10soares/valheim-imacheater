@@ -93,7 +93,7 @@
 
 				var jsonObj = JSON.parse(jsonItems)
 				var new_items = []
-				jsonObj.Items.forEach(element => {
+				jsonObj.forEach(element => {
 					this_element = {
 						name: element.Name,
 						count: element.OriginalCount,

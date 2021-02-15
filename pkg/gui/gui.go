@@ -33,7 +33,10 @@ func (u *UiItems) GetItems(character string) string {
 
 	u.Items, u.FileData = parser.LoadItems(character)
 
-	b, err := json.Marshal(u)
+	// tmpItems := []parser.Item{}
+	// tmpItems = u.Items
+
+	b, err := json.Marshal(u.Items)
 	if err != nil {
 		fmt.Println(err)
 		return ""
