@@ -9,17 +9,24 @@ This tool aims to allow any player to give items to himself, or change any inven
 ### Why?
 **Life is too short for the grind, Valheim is so much more than grind.**
 
-> With great power comes great responsibility, don't ruin you friends games. :)
+> With great power comes great responsibility, don't ruin your friend's games. :)
 
 
 ## Releases
-1.0.0 - Features: Can modify item quantities
+[v1.0.0](https://github.com/marcos10soares/valheim-imacheater/releases/tag/1.0.0) - Features: Can modify item quantities
 
 ## Warnings
 > Be careful when using the tool, it's not fully tested and has bugs, **DO NOT modify any "item listing" that does not have a name**, this is a known bug where the tool is picking up items that are not items and will corrupt your character if changed. (**Anyway, your character is always backed up to the `/bckp` folder where you run the cheat tools exe.**)
 > Use it at your own risk, try it first with a new character you don't care for.
 
 ## Usage
+
+1. Create a folder where you would like to save your character data, example on `Desktop`
+2. copy `valheim-cheats.exe` to that folder
+3. Run `valheim-cheats.exe` 
+4. Modify the quantities you would like and hit save (do not exceed the max quantities of the items or your character will become corrupted) - every time you hit save, a copy of your character data is created inside the folder `/bckp`
+
+**!!IMPORTANT!!: ALWAYS run the program with the game closed. Exit game, run program, relaunch the game**
 
 **Video:** [link](http://recordit.co/YoYBGWod7G)
 
