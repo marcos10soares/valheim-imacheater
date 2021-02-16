@@ -21,7 +21,7 @@ This tool aims to allow any player to give items to himself, or change any inven
 
 ## Usage
 
-1. Create a folder where you would like to save your character data, example on `Desktop`
+1. Create a folder somewhere, example on `Desktop` (Note that your character backups will be saved to `/bckp` inside this folder automatically every time you change any items quantities)
 2. copy `valheim-cheats.exe` to that folder
 3. Run `valheim-cheats.exe` 
 4. Modify the quantities you would like and hit save (do not exceed the max quantities of the items or your character will become corrupted) - every time you hit save, a copy of your character data is created inside the folder `/bckp`
