@@ -4,7 +4,7 @@ Valheim cheating tool
 ## Introduction
 This tool aims to allow any player to give items to himself, or change any inventory item type or quantity.
 
-**This can be used for multiplayer public servers, no admin privileges needed.**
+**This can be used on multiplayer servers, no admin privileges needed.**
 
 ### Why?
 **Life is too short for the grind, Valheim is so much more than grind.**
@@ -46,7 +46,6 @@ This tool aims to allow any player to give items to himself, or change any inven
 
 ![modified item quantities](https://github.com/marcos10soares/valheim-imacheater/blob/main/readme-img/1.jpg?raw=true)
 ![valheim cheat tool](https://github.com/marcos10soares/valheim-imacheater/blob/main/readme-img/demo.gif?raw=true)
-
 
 
 ### How to build
