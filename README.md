@@ -11,6 +11,8 @@ This tool aims to allow any player to give items to himself, or change any inven
 
 > With great power comes great responsibility, don't ruin your friend's games. 😃
 
+## Requirements
+Requires Chrome installed
 
 ## Releases
 [v1.0.0](https://github.com/marcos10soares/valheim-imacheater/releases/tag/1.0.0) - Features: Can modify item quantities
