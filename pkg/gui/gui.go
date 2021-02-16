@@ -39,7 +39,7 @@ func (u *UiItems) GetItems(character string) string {
 		fmt.Println(err)
 		return ""
 	}
-	fmt.Println("debug getitems: ", string(b))
+	// fmt.Println("debug getitems: ", string(b))
 	return string(b)
 }
 
@@ -77,7 +77,7 @@ func (u *UiItems) GetChars() []string {
 
 	if runtime.GOOS == "windows" { // production
 		path = user.HomeDir + utils.WinPath
-		fmt.Println(path)
+		// fmt.Println(path)
 
 	} else { // mac - for debugging
 		path = "files/" // bjørn

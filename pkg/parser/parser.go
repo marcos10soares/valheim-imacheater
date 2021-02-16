@@ -3,11 +3,9 @@ package parser
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"log"
 	"os"
 	"strings"
-	"text/tabwriter"
 	"unicode"
 	"vimacheater/pkg/utils"
 )
@@ -127,18 +125,18 @@ func GetItems(matches []int, full_data []byte, player_data_string string, i int,
 	totalItems := []Item{}
 
 	// file for debug only FOR DEBUG
-	items_log_file_debug, err := os.Create(utils.Bckp_folder + character + "_itemslog_" + utils.GetTimestampString() + ".txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer items_log_file_debug.Close()
+	// items_log_file_debug, err := os.Create(utils.Bckp_folder + character + "_itemslog_" + utils.GetTimestampString() + ".txt")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// defer items_log_file_debug.Close()
 
 	// write as a table
-	w_debug := tabwriter.NewWriter(items_log_file_debug, 10, 2, 1, ' ', 0)
+	// w_debug := tabwriter.NewWriter(items_log_file_debug, 10, 2, 1, ' ', 0)
 	//// END OF DEBUG
 
 	// write as a table
-	w := tabwriter.NewWriter(os.Stdout, 10, 2, 1, ' ', 0)
+	// w := tabwriter.NewWriter(os.Stdout, 10, 2, 1, ' ', 0)
 	for _, match := range matches {
 		// items payload length is variable, this checks the item payload size
 		hasExtraByte := CheckIfItemPayloadHasExtraByte(player_data_string, match)
@@ -167,22 +165,22 @@ func GetItems(matches []int, full_data []byte, player_data_string string, i int,
 		})
 
 		// format string
-		s_out := fmt.Sprintf("| %s\t| Count: %d\t| % 20x \t|", item_name, item_payload[0], item_payload)
+		// s_out := fmt.Sprintf("| %s\t| Count: %d\t| % 20x \t|", item_name, item_payload[0], item_payload)
 
-		// add to table
-		fmt.Fprintln(w, s_out)
+		// // add to table
+		// fmt.Fprintln(w, s_out)
 
-		// add TO DEBUG table
-		fmt.Fprintln(w_debug, s_out)
+		// // add TO DEBUG table
+		// fmt.Fprintln(w_debug, s_out)
 
 		// fmt.Printf("name: %s :\t % 20x \t| len: %d, extra byte: %v\n", getItemName(player_data_string, start_byte_i), item_payload, len(item_payload), hasExtraByte)
 		// fmt.Printf("%+q", patterns)
 	}
 	// print table
-	w.Flush()
+	// w.Flush()
 
 	// print to DEBUG file
-	w_debug.Flush()
+	// w_debug.Flush()
 
 	return totalItems
 }
@@ -223,14 +221,14 @@ func LoadItems(character string) (loadedItems []Item, FileData []byte) {
 		log.Fatal("could not get file size", err)
 	}
 	file_size := file_stats.Size()
-	fmt.Println("file size: ", file_size)
+	// fmt.Println("file size: ", file_size)
 
 	// read all data and close file
 	full_data := utils.ReadNextBytes(file, file_size)
 	file.Close()
 
 	charname := string(unicode.ToUpper(rune(character[0]))) + character[1:]
-	fmt.Println("Character: ", charname)
+	// fmt.Println("Character: ", charname)
 	full_string := string(full_data)
 	i := strings.Index(full_string, charname)
 
@@ -266,10 +264,10 @@ func LoadItems(character string) (loadedItems []Item, FileData []byte) {
 	// clean matches by verifying some extra patterns on each item
 	matches = CleanItemMatches(full_data, player_data_string, i, matches)
 
-	fmt.Println("Items found: ", len(matches))
+	// fmt.Println("Items found: ", len(matches))
 
 	totalItems := GetItems(matches, full_data, player_data_string, i, character)
-	fmt.Printf("Items: %v\n", totalItems)
+	// fmt.Printf("Items: %v\n", totalItems)
 
 	return totalItems, full_data
 }

@@ -78,7 +78,7 @@
 			const btnItemsSave = document.querySelector('.items-save');
 			const btnItemsGet = document.querySelector('.items-get');
 
-			console.log(btnItemsSave);
+			// console.log(btnItemsSave);
 
 			// We use async/await because Go functions are asynchronous
 			// const render = async () => {
@@ -130,7 +130,7 @@
 			};
 
 			btnItemsSave.addEventListener('click', async () => {
-				console.log("clicked update items");
+				// console.log("clicked update items");
 				alert('Saved Data!')
 				var lis = document.getElementsByClassName("count-input")
 
@@ -143,19 +143,19 @@
 			});
 
 			btnItemsGet.addEventListener('click', async () => {
-				console.log("clicked get items");
+				// console.log("clicked get items");
 				var selection = document.getElementById( "selection" );
 
-				console.log(selection)
+				// console.log(selection)
 				
 				jsonItems = await getItems(selection.options[selection.selectedIndex].value); // Call Go function
 				list_render(jsonItems);
 			});
 
 			const render = async () => {
-				console.log("ran get characters");
+				// console.log("ran get characters");
 				chars = await getChars(); // Call Go function
-				console.log(chars)
+				// console.log(chars)
 
 				var select = document.querySelector(".char-selection");
 				
