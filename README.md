@@ -9,7 +9,7 @@ This tool aims to allow any player to give items to himself, or change any inven
 ### Why?
 **Life is too short for the grind, Valheim is so much more than grind.**
 
-> With great power comes great responsibility, don't ruin your friend's games. :)
+> With great power comes great responsibility, don't ruin your friend's games. 😃
 
 
 ## Releases
