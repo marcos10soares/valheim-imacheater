@@ -3,6 +3,7 @@ package parser
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -227,10 +228,12 @@ func LoadItems(character string) (loadedItems []Item, FileData []byte) {
 	full_data := utils.ReadNextBytes(file, file_size)
 	file.Close()
 
-	charname := string(unicode.ToUpper(rune(character[0]))) + character[1:]
-	// fmt.Println("Character: ", charname)
+	charname := makeTitle(character)
+
 	full_string := string(full_data)
 	i := strings.Index(full_string, charname)
+
+	fmt.Println(i)
 
 	// parse header, still not sure of structure format and meaning, probably date and time somewhere?
 	header := Header{}
@@ -270,4 +273,21 @@ func LoadItems(character string) (loadedItems []Item, FileData []byte) {
 	// fmt.Printf("Items: %v\n", totalItems)
 
 	return totalItems, full_data
+}
+
+func makeTitle(s string) string {
+	s = string(unicode.ToUpper(rune(s[0]))) + s[1:]
+
+	var space_index = []int{}
+	for i := 0; i < len(s); i++ {
+		if unicode.IsSpace(rune(s[i])) {
+			space_index = append(space_index, i)
+		}
+	}
+
+	for _, v := range space_index {
+		s = s[:v+1] + string(unicode.ToUpper(rune(s[v+1]))) + s[v+2:]
+	}
+
+	return s
 }

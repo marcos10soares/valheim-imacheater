@@ -16,6 +16,7 @@ Requires Chrome installed
 
 ## Releases
 [v1.0.0](https://github.com/marcos10soares/valheim-imacheater/releases/tag/1.0.0) - Features: Can modify item quantities
+[v1.0.1](https://github.com/marcos10soares/valheim-imacheater/releases/tag/1.0.0) - Fixed bug where names with spaces would not load items
 
 ## Warnings
 > Be careful when using the tool, it's not fully tested and has bugs, **DO NOT modify any "item listing" that does not have a name**, this is a known bug where the tool is picking up items that are not items and will corrupt your character if changed. (**Anyway, your character is always backed up to the `/bckp` folder where you run the cheat tools exe.**)
@@ -32,17 +33,20 @@ Requires Chrome installed
 
 **Video:** [link](http://recordit.co/YoYBGWod7G)
 
+## Known bugs
+- Some special characters in name may cause items not to load.
+
 ## To Do
 1. [x] Automatically get character data
-1. [x] Automatically backup character data
-1. [x] Successfully modify item quantities
-1. [ ] Successfully add new items to inventory  (in progress - already achieved it but not programmatically)
-1. [ ] Successfully change current active power (in progress)
-1. [ ] Successfully change skill levels
-1. [x] Create GUI Interface
-1. [ ] Create file with all items names and max limits for each
-1. [ ] Add verification for item max limits
-1. [ ] Add option to quick fix the game to optimize performance [valheim-increase-fps-performance](https://www.pcgamer.com/valheim-increase-fps-performance/)
+2. [x] Automatically backup character data
+3. [x] Successfully modify item quantities
+4. [ ] Successfully add new items to inventory  (in progress - already achieved it but not programmatically)
+5. [ ] Successfully change current active power (in progress)
+6. [ ] Successfully change skill levels
+7. [x] Create GUI Interface
+8. [ ] Create file with all items names and max limits for each
+9. [ ] Add verification for item max limits
+10. [ ] Add option to quick fix the game to optimize performance [valheim-increase-fps-performance](https://www.pcgamer.com/valheim-increase-fps-performance/)
 
 ## Screenshots
 
