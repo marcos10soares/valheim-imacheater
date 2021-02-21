@@ -14,7 +14,7 @@ Do not modify file if save file is around 1kb (just after character creation, pl
 Example for the Character: "Bjørn"
 
 ```
-|<--  A -->|  |<---     B     --->|
+<-- prev |A|  |<---     B     --->|
                B  J  ø  ø     R  N
 00 00 00 06    42 6A C3 B8    72 6E 6D 1E    F7 D1 00 00    00 00 00 01    1F 20 00 00    18 00 00 00
 
@@ -24,7 +24,7 @@ Example for the Character: "Bjørn"
 05 03 05 43    05 03 05 43    C3 C3 0C 43    00 63 64 82    45 0A 47 50    5F 45 69 6B    74 68 79 72
 
 
-|<-- E  -->|  |<--  F  -->|  |<-- G  -->|  | H||<---            I          --->||<---   J  --->||<-- K 
+|<-- E  -->|  |<--  F  -->|  |<-- G  -->|   |H||<---            I          --->||<---   J  --->||<-- K 
                                                 I  r  o     n  N  a  i     l  s 
 00 00 00 00    67 00 00 00    1F 00 00 00    09 49 72 6F    6E 4E 61 69    6C 73 0A 00    00 00 00 00
 
@@ -37,8 +37,8 @@ File uses Litle Endian format, keep that in mind when reading more than one byte
 
 - **A.** Player Name length: Example "bjørn", due to special character has an extra byte, 0x06 --> 06 dec
 - **B.** Player Name - variable in size (utf8)
-- **C.** Length of the power name, example: for "GP_Eikthyr" --> 0x0A --> 10 dec 
-- **D.** Name of the Power, example: "GP_Eikthyr", variable length!
+- **C.** Length of the power name, example: for "GP_Eikthyr" --> 0x0A --> 10 dec
+- **D.** Name of the Power, example: "GP_Eikthyr", variable length! Note: if `C` is 0, `D` is 0 and `E` does not exist
 - **E.** Cooldown timer of the power, microseconds? not sure yet!
 - **F.** Not sure yet....
 - **G.** Number of items in inventory, example: 0x1f --> 31 dec
