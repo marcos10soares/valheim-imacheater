@@ -13,15 +13,21 @@
 			background-size: cover;
 		}
 		body { height: 100vh; align-items: center; justify-content: center; font-family: 'Helvetika Neue', Arial, sans-serif; }
+		ul {list-style: none;}
 		.container { display: flex; flex-wrap: wrap;}
 		.logo { margin:auto !important; }
 		.sub-logo {margin:auto; font-size: small; color: white;}
-		.item-container { display: flex; flex-direction: column; align-items: center; font-size: 28px; color: white;}
+		.flex-container { display: flex; flex-direction: column; align-items: center; font-size: 28px; color: white;}
 		.counter { text-transform: uppercase; color: #fff; font-weight: bold; font-size: 3rem; }
 		.char-selection {font-size: 18px;}
 
-		.count-input {width: 70px;font-size: 20px; text-align: center; padding: 5px;}
-		.item-row { display: flex; margin: 0.5rem; }
+		.item-container { display: flex; flex-direction: column; font-size: 28px; color: white;width: 500px;}
+		.item-row { margin: 0.5rem -10px; }
+		.item-name{margin: 0 10px;}
+		.count-input {width: 70px;font-size: 20px; text-align: center; padding: 5px; float: right; margin-top: -36px;}
+		
+
+
 
 		.btn-row { display: flex; align-items: center; margin: 1rem; }
 		.btn { cursor: pointer; min-width: 4em; padding: 0.3em; border-radius: 5px; text-align: center; margin: 0 1rem; box-shadow: 0 6px #8b5e00; color: white; background-color: #E4B702; position: relative; font-weight: bold; }
@@ -43,7 +49,7 @@
 		<div class="break"></div>
 		<br>
 
-		<div class="item-container">
+		<div class="flex-container">
 			<form>
 				<label>Choose a character:</label>
 				<select id="selection" class="char-selection">
@@ -54,7 +60,7 @@
 			<!-- <div class="btn char-select">Select</div> -->
 		</div>
 
-		<div class="item-container">
+		<div class="flex-container">
 			<div class="counter"></div>
 			<div class="btn-row">
 				<div class="btn items-get">Load Items</div>

@@ -19,31 +19,17 @@ type Item struct {
 }
 
 // still not sure what to make of it
+// header has 72 bytes, where the first 4 is the filesize in little endian, minus the header size (72 bytes)
 type Header struct {
-	Field1  uint32
-	Field2  uint32
-	Field3  uint32
-	Field4  uint32
-	Field5  uint32
-	Field6  uint32
-	Field7  uint32
-	Field8  uint32
-	Field9  uint32
-	Field10 uint32
-	Field11 uint32
-	Field12 uint32
-	Field13 uint32
-	Field14 uint32
-	Field15 uint32
-	Field16 uint32
-	Field17 uint32
-	Field18 uint32
-	Field19 uint32
-	Field20 uint32
-	Field21 uint32
-	Field22 uint32
-	Field23 uint32
-	Field24 uint32
+	Field1 uint32 // filesize in little endian, minus the header size (72 bytes)
+	Field2 uint32 // unknown
+	Field3 uint32 // unknown
+	Field4 uint32 // unknown
+	Field5 uint32 // unknown
+	Field6 uint32 // unknown
+	Field7 uint32 // unknown
+	Field8 uint32 // unknown
+	Field9 uint32 // unknown
 }
 
 type ItemControlData struct {
@@ -61,7 +47,9 @@ type CharData struct {
 	Charname                 string        // variable len
 	Unknown1                 []byte        // 35 bytes
 	EquipedPowerLen          uint8         // 1 byte
+	EquipedPowerLenIndex     uint32        // reference for accessing power name
 	EquipedPower             string        // variablen len
+	PowerCooldownIndex       uint32        // reference for accessing cooldown
 	PowerCooldown            uint32        // 4 bytes
 	Unknown2                 uint32        // 4 bytes
 	NumberOfItemsInInventory uint32        // 4 bytes
@@ -81,21 +69,21 @@ type ItemPayload struct {
 	OwnerName         string // optional
 }
 
-func GetItemName(player_data string, start_byte_i int) string {
-	var item_name string
-	for {
-		if player_data[start_byte_i] == 0x0 {
-			break
-		}
-		item_name += string(player_data[start_byte_i])
-		start_byte_i--
-	}
-	if len(item_name) < 1 {
-		return ""
-	}
-	item_name = utils.ReverseString(item_name)
-	return utils.CleanString(strings.Replace(strings.Trim(strings.TrimSpace(item_name[1:]), "\n"), string(0xc), "", -1))
-}
+// func GetItemName(player_data string, start_byte_i int) string {
+// 	var item_name string
+// 	for {
+// 		if player_data[start_byte_i] == 0x0 {
+// 			break
+// 		}
+// 		item_name += string(player_data[start_byte_i])
+// 		start_byte_i--
+// 	}
+// 	if len(item_name) < 1 {
+// 		return ""
+// 	}
+// 	item_name = utils.ReverseString(item_name)
+// 	return utils.CleanString(strings.Replace(strings.Trim(strings.TrimSpace(item_name[1:]), "\n"), string(0xc), "", -1))
+// }
 
 func CheckIfItemPayloadHasExtraByte(player_data string, index int) bool {
 	extra_byte_payload_marker := string([]byte{0x6d, 0x1e, 0xf7, 0xd1})
@@ -126,97 +114,97 @@ func FindAllOccurrences(data []byte, searches []string) map[string][]int {
 	return results
 }
 
-func CleanItemMatches(full_data []byte, player_data_string string, i int, matches []int) []int {
-	var clean_matches []int
-	for _, match := range matches {
-		// items payload length is variable, this checks the item payload size
-		hasExtraByte := CheckIfItemPayloadHasExtraByte(player_data_string, match)
-		start_byte_i := match - 17
-		item_payload_size := 34
-		if hasExtraByte {
-			item_payload_size += 1
-		}
+// func CleanItemMatches(full_data []byte, player_data_string string, i int, matches []int) []int {
+// 	var clean_matches []int
+// 	for _, match := range matches {
+// 		// items payload length is variable, this checks the item payload size
+// 		hasExtraByte := CheckIfItemPayloadHasExtraByte(player_data_string, match)
+// 		start_byte_i := match - 17
+// 		item_payload_size := 34
+// 		if hasExtraByte {
+// 			item_payload_size += 1
+// 		}
 
-		// get payload limits index
-		item_payload_start_byte := (i + start_byte_i)
-		end_byte_i := item_payload_start_byte + item_payload_size
+// 		// get payload limits index
+// 		item_payload_start_byte := (i + start_byte_i)
+// 		end_byte_i := item_payload_start_byte + item_payload_size
 
-		// get payload
-		item_payload := []byte(full_data[item_payload_start_byte:end_byte_i])
+// 		// get payload
+// 		item_payload := []byte(full_data[item_payload_start_byte:end_byte_i])
 
-		//verify payload
-		if (string(item_payload[1:4]) != string([]byte{0, 0, 0})) || (string(item_payload[29:33]) != string([]byte{0, 0, 0, 0})) {
-			continue
-		}
+// 		//verify payload
+// 		if (string(item_payload[1:4]) != string([]byte{0, 0, 0})) || (string(item_payload[29:33]) != string([]byte{0, 0, 0, 0})) {
+// 			continue
+// 		}
 
-		clean_matches = append(clean_matches, match)
-	}
-	return clean_matches
-}
+// 		clean_matches = append(clean_matches, match)
+// 	}
+// 	return clean_matches
+// }
 
-func GetItems(matches []int, full_data []byte, player_data_string string, i int, character string) []Item {
-	totalItems := []Item{}
+// func GetItems(matches []int, full_data []byte, player_data_string string, i int, character string) []Item {
+// 	totalItems := []Item{}
 
-	// file for debug only FOR DEBUG
-	// items_log_file_debug, err := os.Create(utils.Bckp_folder + character + "_itemslog_" + utils.GetTimestampString() + ".txt")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer items_log_file_debug.Close()
+// 	// file for debug only FOR DEBUG
+// 	// items_log_file_debug, err := os.Create(utils.Bckp_folder + character + "_itemslog_" + utils.GetTimestampString() + ".txt")
+// 	// if err != nil {
+// 	// 	log.Fatal(err)
+// 	// }
+// 	// defer items_log_file_debug.Close()
 
-	// write as a table
-	// w_debug := tabwriter.NewWriter(items_log_file_debug, 10, 2, 1, ' ', 0)
-	//// END OF DEBUG
+// 	// write as a table
+// 	// w_debug := tabwriter.NewWriter(items_log_file_debug, 10, 2, 1, ' ', 0)
+// 	//// END OF DEBUG
 
-	// write as a table
-	// w := tabwriter.NewWriter(os.Stdout, 10, 2, 1, ' ', 0)
-	for _, match := range matches {
-		// items payload length is variable, this checks the item payload size
-		hasExtraByte := CheckIfItemPayloadHasExtraByte(player_data_string, match)
-		start_byte_i := match - 17
-		item_payload_size := 34
-		if hasExtraByte {
-			item_payload_size += 1
-		}
+// 	// write as a table
+// 	// w := tabwriter.NewWriter(os.Stdout, 10, 2, 1, ' ', 0)
+// 	for _, match := range matches {
+// 		// items payload length is variable, this checks the item payload size
+// 		hasExtraByte := CheckIfItemPayloadHasExtraByte(player_data_string, match)
+// 		start_byte_i := match - 17
+// 		item_payload_size := 34
+// 		if hasExtraByte {
+// 			item_payload_size += 1
+// 		}
 
-		// get payload limits index
-		item_payload_start_byte := (i + start_byte_i)
-		end_byte_i := item_payload_start_byte + item_payload_size
+// 		// get payload limits index
+// 		item_payload_start_byte := (i + start_byte_i)
+// 		end_byte_i := item_payload_start_byte + item_payload_size
 
-		// get item name (this string is modified for printing reasons, do not use for changing output file)
-		item_name := GetItemName(player_data_string, start_byte_i)
+// 		// get item name (this string is modified for printing reasons, do not use for changing output file)
+// 		item_name := GetItemName(player_data_string, start_byte_i)
 
-		// get payload
-		item_payload := []byte(full_data[item_payload_start_byte:end_byte_i])
+// 		// get payload
+// 		item_payload := []byte(full_data[item_payload_start_byte:end_byte_i])
 
-		// save to items
-		totalItems = append(totalItems, Item{
-			Name:          item_name,
-			PayloadIndex:  item_payload_start_byte,
-			Payload:       item_payload,
-			OriginalCount: int(item_payload[0]),
-		})
+// 		// save to items
+// 		totalItems = append(totalItems, Item{
+// 			Name:          item_name,
+// 			PayloadIndex:  item_payload_start_byte,
+// 			Payload:       item_payload,
+// 			OriginalCount: int(item_payload[0]),
+// 		})
 
-		// format string
-		// s_out := fmt.Sprintf("| %s\t| Count: %d\t| % 20x \t|", item_name, item_payload[0], item_payload)
+// 		// format string
+// 		// s_out := fmt.Sprintf("| %s\t| Count: %d\t| % 20x \t|", item_name, item_payload[0], item_payload)
 
-		// // add to table
-		// fmt.Fprintln(w, s_out)
+// 		// // add to table
+// 		// fmt.Fprintln(w, s_out)
 
-		// // add TO DEBUG table
-		// fmt.Fprintln(w_debug, s_out)
+// 		// // add TO DEBUG table
+// 		// fmt.Fprintln(w_debug, s_out)
 
-		// fmt.Printf("name: %s :\t % 20x \t| len: %d, extra byte: %v\n", getItemName(player_data_string, start_byte_i), item_payload, len(item_payload), hasExtraByte)
-		// fmt.Printf("%+q", patterns)
-	}
-	// print table
-	// w.Flush()
+// 		// fmt.Printf("name: %s :\t % 20x \t| len: %d, extra byte: %v\n", getItemName(player_data_string, start_byte_i), item_payload, len(item_payload), hasExtraByte)
+// 		// fmt.Printf("%+q", patterns)
+// 	}
+// 	// print table
+// 	// w.Flush()
 
-	// print to DEBUG file
-	// w_debug.Flush()
+// 	// print to DEBUG file
+// 	// w_debug.Flush()
 
-	return totalItems
-}
+// 	return totalItems
+// }
 
 func ModifyItemData(full_data []byte, items []Item) []byte {
 	for _, item := range items {
@@ -226,20 +214,6 @@ func ModifyItemData(full_data []byte, items []Item) []byte {
 }
 
 func LoadItems(character string, path string, filename string) (loadedItems []Item, FileData []byte) {
-	// path := utils.CharactersFolder
-
-	// user, err := utils.GetCurrentUser()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// if runtime.GOOS == "windows" { // production
-	// 	path = user.HomeDir + WinPath
-	// 	fmt.Println(path)
-	// } else { // mac - for debugging
-	// 	path = MacPath
-	// }
-
 	// selected character
 	character_path := path + filename
 
@@ -251,50 +225,7 @@ func LoadItems(character string, path string, filename string) (loadedItems []It
 	// parse file
 	charData := ParseFileNewMethod(character, full_data)
 
-	// charname := utils.MakeTitle(character)
-
-	// full_string := string(full_data)
-	// i := strings.Index(full_string, charname)
-
-	// fmt.Println(i)
-
-	// // parse header, still not sure of structure format and meaning, probably date and time somewhere?
-	// header := Header{}
-	// buffer := bytes.NewBuffer(full_data[:96])
-	// err := binary.Read(buffer, binary.LittleEndian, &header)
-	// if err != nil {
-	// 	log.Fatal("binary.Read failed", err)
-	// }
-	// fmt.Printf("Header data:\n%+v\n", header)
-
-	// player_data_string := full_string[i:]
-
-	// // pattern to look for in items
-	// byte_pattern := []byte{1, 0, 0, 0, 0, 0, 0, 0}
-	// string_pattern := string(byte_pattern)
-
-	// // create a slice of patterns to look for
-	// patterns := make([]string, 1)
-	// // inserts the pattern to look for
-	// patterns[0] = string_pattern
-
-	// // finds all indexes where the pattern occurs, result is a map because there can be more patterns to look for
-	// result := FindAllOccurrences([]byte(player_data_string), patterns)
-
-	// // get the match indexes
-	// matches := result[string_pattern]
-
-	// // reverse order of matches
-	// matches = utils.ReverseIntSlice(matches)
-
-	// // clean matches by verifying some extra patterns on each item
-	// matches = CleanItemMatches(full_data, player_data_string, i, matches)
-
-	// // fmt.Println("Items found: ", len(matches))
-
-	// totalItems := GetItems(matches, full_data, player_data_string, i, character)
-	// // fmt.Printf("Items: %v\n", totalItems)
-
+	// create []Item because it's the struct already in use, refactor this later
 	for _, item := range charData.ItemSection {
 		// fmt.Println(item)
 		loadedItems = append(loadedItems, Item{
@@ -306,12 +237,7 @@ func LoadItems(character string, path string, filename string) (loadedItems []It
 			MaxCount:      item.ControlData.MaxCount,
 			ToModify:      item.ControlData.ToModify,
 		})
-		// fmt.Println("payload_index:", item.ControlData.PayloadIndexStartingOnQty)
-		// fmt.Println("item_count:", item.ControlData.OriginalCount)
-		// fmt.Println("payload:", full_data[item.ControlData.PayloadIndexStartingOnQty:item.ControlData.PayloadIndexStartingOnQty+40])
 	}
-
-	// panic("fuck")
 
 	return loadedItems, full_data
 }
@@ -326,6 +252,9 @@ func ParseFileNewMethod(charname string, data []byte) CharData {
 	// 	start_index = 4194408
 	// }
 
+	// this could be removed if there is a way to always know where the character data starts
+	// instead of parsing the file looking for the name
+	// like the commented code above
 	charname = utils.MakeTitle(charname)
 	fmt.Println(charname)
 	start_index := strings.Index(string(data), charname) - 1
@@ -340,12 +269,14 @@ func ParseFileNewMethod(charname string, data []byte) CharData {
 
 	next_i := charname_len + 1 + 35 + 1 + equiped_power_len
 	i := next_i
+	power_cooldown_index := uint32(start_index) + uint32(i)
 	next_i = i + 4
 	power_cooldown := binary.LittleEndian.Uint32(char_section_region[i:next_i])
 
 	unknown2 := char_section_region[next_i : next_i+4]
 	number_of_items_in_inventory := binary.LittleEndian.Uint32(char_section_region[next_i+4 : next_i+4+4])
 
+	// for debugging
 	// fmt.Printf("charname_len: %d, % 20x\n", charname_len, char_section_region[0])
 	// fmt.Printf("charname: %s, % 20x\n", charname_from_file, char_section_region[1:charname_len+1])
 	// fmt.Printf("unknown1: % 20x\n", unknown1)
@@ -362,21 +293,18 @@ func ParseFileNewMethod(charname string, data []byte) CharData {
 		CharnameLen:              uint8(charname_len),
 		Charname:                 string(charname_from_file),
 		Unknown1:                 unknown1,
+		EquipedPowerLenIndex:     uint32(start_index) + uint32(charname_len+1+35),
 		EquipedPowerLen:          uint8(equiped_power_len),
 		EquipedPower:             equiped_power,
+		PowerCooldownIndex:       power_cooldown_index,
 		PowerCooldown:            power_cooldown,
 		Unknown2:                 binary.LittleEndian.Uint32(unknown2),
 		NumberOfItemsInInventory: number_of_items_in_inventory,
 		// ItemSection:,
 	}
 
-	// fmt.Printf("% 20x\n", char_section_region[:100])
-	// fmt.Println(char_data)
-
 	start_of_items_section := start_index + int(next_i+4+4)
 	items, _ := GetItemsNewMethod(int(number_of_items_in_inventory), start_of_items_section, data)
-	// fmt.Println(items)
-
 	char_data.ItemSection = items
 
 	return *char_data
@@ -400,7 +328,6 @@ func GetItemsNewMethod(number_of_items_in_inventory int, start_of_items_section 
 
 		item_name := string(item_data[offset+1 : offset+int(item_name_len)+1])
 		if has_owner {
-			// fmt.Println("HAS OWNER")
 			has_owner = true
 			second_name_len := uint8(item_data[offset+int(item_name_len)+1])
 			name_bytes := item_data[offset+int(item_name_len)+2 : offset+int(item_name_len+second_name_len)+2]
@@ -411,15 +338,13 @@ func GetItemsNewMethod(number_of_items_in_inventory int, start_of_items_section 
 			item_name = second_item_name
 		}
 
-		// last_byte := item_data[byte_offset+int(item_name_len)+33]
-		// fmt.Println("last_byte", last_byte) // just for debugging
-
 		item_count := binary.LittleEndian.Uint32(item_data[offset+int(item_name_len)+1 : offset+int(item_name_len)+1+4])
 		unknown3 := item_data[offset+int(item_name_len)+1+4 : offset+int(item_name_len)+1+4+4]
 		x_coord_in_inventory := binary.LittleEndian.Uint32(item_data[offset+int(item_name_len)+1+4+4 : offset+int(item_name_len)+1+4+4+4])
 		y_coord_in_inventory := binary.LittleEndian.Uint32(item_data[offset+int(item_name_len)+1+4+4+4 : offset+int(item_name_len)+1+4+4+4+4])
 		unknown4 := item_data[offset+int(item_name_len)+1+4+4+4+4 : offset+int(item_name_len)+1+4+4+4+4+17]
 
+		// for debugging
 		// fmt.Println("item name len:", item_name_len)
 		// fmt.Println("item name:", item_name)
 		// fmt.Println("item count:", item_count)
@@ -429,10 +354,6 @@ func GetItemsNewMethod(number_of_items_in_inventory int, start_of_items_section 
 		// fmt.Println("unknown4:", unknown4)
 
 		full_payload := item_data[byte_offset : byte_offset+34+int(item_name_len)]
-
-		// fmt.Println(item_data[byte_offset : byte_offset+34+int(item_name_len)]) // full payload
-		// fmt.Println(item_data[byte_offset : byte_offset+44+int(item_name_len)]) // shows a bit of next item
-		// fmt.Println("-----")
 
 		item_payload := &ItemPayload{
 			ItemNameLen:       item_name_len,
