@@ -31,7 +31,7 @@ func (u *UiItems) GetItems(character string) string {
 	u.Lock()
 	defer u.Unlock()
 
-	u.Items, u.FileData = parser.LoadItems(character)
+	u.Items, u.FileData = parser.LoadItems(character, utils.CharactersFolder, character+".fch")
 	u.Character = character
 
 	b, err := json.Marshal(u.Items)

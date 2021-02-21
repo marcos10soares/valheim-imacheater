@@ -7,10 +7,12 @@ import (
 	"log"
 	"os"
 	"os/user"
+	"path/filepath"
 	"regexp"
 	"runtime"
 	"strings"
 	"time"
+	"unicode"
 )
 
 const WinPath = "\\AppData\\LocalLow\\IronGate\\Valheim\\characters\\"
@@ -169,6 +171,21 @@ func GetTimestampString() string {
 	return strings.Replace(timestamp, ":", "_", -1)
 }
 
+func ListDirRecursively(root string) []string {
+	var files []string
+
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if info.IsDir() == false && info.Name() != ".DS_Store" {
+			files = append(files, path)
+		}
+		return nil
+	})
+	if err != nil {
+		panic(err)
+	}
+	return files
+}
+
 // func GetCharNameFromPath(path string) string {
 // 	s := GetFileNameFromPath(path)
 // 	return
@@ -189,3 +206,41 @@ func GetTimestampString() string {
 
 // 	fmt.Println("done")
 // }
+
+func ReadFileFromPath(path string) []byte {
+	file, err := os.Open(path)
+	if err != nil {
+		log.Fatal("Error while opening file", err)
+	}
+
+	// get total amount of bytes
+	file_stats, err := file.Stat()
+	if err != nil {
+		log.Fatal("could not get file size", err)
+	}
+	file_size := file_stats.Size()
+	// fmt.Println("file size: ", file_size)
+
+	// read all data and close file
+	full_data := ReadNextBytes(file, file_size)
+	file.Close()
+
+	return full_data
+}
+
+func MakeTitle(s string) string {
+	s = string(unicode.ToUpper(rune(s[0]))) + s[1:]
+
+	var space_index = []int{}
+	for i := 0; i < len(s); i++ {
+		if unicode.IsSpace(rune(s[i])) {
+			space_index = append(space_index, i)
+		}
+	}
+
+	for _, v := range space_index {
+		s = s[:v+1] + string(unicode.ToUpper(rune(s[v+1]))) + s[v+2:]
+	}
+
+	return s
+}

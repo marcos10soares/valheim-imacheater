@@ -4,10 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"log"
-	"os"
 	"strings"
-	"unicode"
 	"vimacheater/pkg/utils"
 )
 
@@ -47,6 +44,41 @@ type Header struct {
 	Field22 uint32
 	Field23 uint32
 	Field24 uint32
+}
+
+type ItemControlData struct {
+	PayloadIndex              int
+	PayloadIndexStartingOnQty int
+	Payload                   []byte
+	OriginalCount             int
+	ModifiedCount             int
+	MaxCount                  int
+	ToModify                  bool
+}
+
+type CharData struct {
+	CharnameLen              uint8         // 1 byte
+	Charname                 string        // variable len
+	Unknown1                 []byte        // 35 bytes
+	EquipedPowerLen          uint8         // 1 byte
+	EquipedPower             string        // variablen len
+	PowerCooldown            uint32        // 4 bytes
+	Unknown2                 uint32        // 4 bytes
+	NumberOfItemsInInventory uint32        // 4 bytes
+	ItemSection              []ItemPayload // variable
+}
+
+type ItemPayload struct {
+	ControlData       ItemControlData
+	ItemNameLen       uint8  // 1 byte
+	ItemName          string // variable len
+	ItemCount         uint32 // 4 bytes
+	Unknown3          uint32 // 4 bytes
+	XcoordInInventory uint32 // 4 bytes
+	YcoordInInventory uint32 // 4 bytes
+	Unknown4          []byte // 16 bytes
+	HasOwner          bool   // optional
+	OwnerName         string // optional
 }
 
 func GetItemName(player_data string, start_byte_i int) string {
@@ -193,8 +225,8 @@ func ModifyItemData(full_data []byte, items []Item) []byte {
 	return full_data
 }
 
-func LoadItems(character string) (loadedItems []Item, FileData []byte) {
-	path := utils.CharactersFolder
+func LoadItems(character string, path string, filename string) (loadedItems []Item, FileData []byte) {
+	// path := utils.CharactersFolder
 
 	// user, err := utils.GetCurrentUser()
 	// if err != nil {
@@ -208,86 +240,224 @@ func LoadItems(character string) (loadedItems []Item, FileData []byte) {
 	// 	path = MacPath
 	// }
 
-	character_path := path + character + ".fch"
+	// selected character
+	character_path := path + filename
 
-	// open selected character
-	file, err := os.Open(character_path)
-	if err != nil {
-		log.Fatal("Error while opening file", err)
-	}
+	// read all data from selected character
+	full_data := utils.ReadFileFromPath(character_path)
 
-	// get total amount of bytes
-	file_stats, err := file.Stat()
-	if err != nil {
-		log.Fatal("could not get file size", err)
-	}
-	file_size := file_stats.Size()
-	// fmt.Println("file size: ", file_size)
+	fmt.Println(len(full_data))
 
-	// read all data and close file
-	full_data := utils.ReadNextBytes(file, file_size)
-	file.Close()
+	// parse file
+	charData := ParseFileNewMethod(character, full_data)
 
-	charname := makeTitle(character)
+	// charname := utils.MakeTitle(character)
 
-	full_string := string(full_data)
-	i := strings.Index(full_string, charname)
+	// full_string := string(full_data)
+	// i := strings.Index(full_string, charname)
 
-	fmt.Println(i)
+	// fmt.Println(i)
 
-	// parse header, still not sure of structure format and meaning, probably date and time somewhere?
-	header := Header{}
-	buffer := bytes.NewBuffer(full_data[:96])
-	err = binary.Read(buffer, binary.LittleEndian, &header)
-	if err != nil {
-		log.Fatal("binary.Read failed", err)
-	}
+	// // parse header, still not sure of structure format and meaning, probably date and time somewhere?
+	// header := Header{}
+	// buffer := bytes.NewBuffer(full_data[:96])
+	// err := binary.Read(buffer, binary.LittleEndian, &header)
+	// if err != nil {
+	// 	log.Fatal("binary.Read failed", err)
+	// }
 	// fmt.Printf("Header data:\n%+v\n", header)
 
-	player_data_string := full_string[i:]
+	// player_data_string := full_string[i:]
 
-	// pattern to look for in items
-	byte_pattern := []byte{1, 0, 0, 0, 0, 0, 0, 0}
-	string_pattern := string(byte_pattern)
+	// // pattern to look for in items
+	// byte_pattern := []byte{1, 0, 0, 0, 0, 0, 0, 0}
+	// string_pattern := string(byte_pattern)
 
-	// create a slice of patterns to look for
-	patterns := make([]string, 1)
-	// inserts the pattern to look for
-	patterns[0] = string_pattern
+	// // create a slice of patterns to look for
+	// patterns := make([]string, 1)
+	// // inserts the pattern to look for
+	// patterns[0] = string_pattern
 
-	// finds all indexes where the pattern occurs, result is a map because there can be more patterns to look for
-	result := FindAllOccurrences([]byte(player_data_string), patterns)
+	// // finds all indexes where the pattern occurs, result is a map because there can be more patterns to look for
+	// result := FindAllOccurrences([]byte(player_data_string), patterns)
 
-	// get the match indexes
-	matches := result[string_pattern]
+	// // get the match indexes
+	// matches := result[string_pattern]
 
-	// reverse order of matches
-	matches = utils.ReverseIntSlice(matches)
+	// // reverse order of matches
+	// matches = utils.ReverseIntSlice(matches)
 
-	// clean matches by verifying some extra patterns on each item
-	matches = CleanItemMatches(full_data, player_data_string, i, matches)
+	// // clean matches by verifying some extra patterns on each item
+	// matches = CleanItemMatches(full_data, player_data_string, i, matches)
 
-	// fmt.Println("Items found: ", len(matches))
+	// // fmt.Println("Items found: ", len(matches))
 
-	totalItems := GetItems(matches, full_data, player_data_string, i, character)
-	// fmt.Printf("Items: %v\n", totalItems)
+	// totalItems := GetItems(matches, full_data, player_data_string, i, character)
+	// // fmt.Printf("Items: %v\n", totalItems)
 
-	return totalItems, full_data
+	for _, item := range charData.ItemSection {
+		// fmt.Println(item)
+		loadedItems = append(loadedItems, Item{
+			Name:          item.ItemName,
+			PayloadIndex:  item.ControlData.PayloadIndexStartingOnQty,
+			Payload:       item.ControlData.Payload,
+			OriginalCount: item.ControlData.OriginalCount,
+			ModifiedCount: item.ControlData.ModifiedCount,
+			MaxCount:      item.ControlData.MaxCount,
+			ToModify:      item.ControlData.ToModify,
+		})
+		// fmt.Println("payload_index:", item.ControlData.PayloadIndexStartingOnQty)
+		// fmt.Println("item_count:", item.ControlData.OriginalCount)
+		// fmt.Println("payload:", full_data[item.ControlData.PayloadIndexStartingOnQty:item.ControlData.PayloadIndexStartingOnQty+40])
+	}
+
+	// panic("fuck")
+
+	return loadedItems, full_data
 }
 
-func makeTitle(s string) string {
-	s = string(unicode.ToUpper(rune(s[0]))) + s[1:]
+func ParseFileNewMethod(charname string, data []byte) CharData {
+	// start_index := 0
+	// size := len(data)
+	// fmt.Println("data size: ", size)
+	// if size > 8000000 {
+	// 	start_index = 8389395
+	// } else if size > 4000000 {
+	// 	start_index = 4194408
+	// }
 
-	var space_index = []int{}
-	for i := 0; i < len(s); i++ {
-		if unicode.IsSpace(rune(s[i])) {
-			space_index = append(space_index, i)
+	charname = utils.MakeTitle(charname)
+	fmt.Println(charname)
+	start_index := strings.Index(string(data), charname) - 1
+
+	char_section_region := data[start_index:]
+
+	charname_len := char_section_region[0]
+	charname_from_file := string(char_section_region[1 : charname_len+1])
+	unknown1 := char_section_region[charname_len+1 : charname_len+1+35]
+	equiped_power_len := char_section_region[charname_len+1+35]
+	equiped_power := string(char_section_region[charname_len+1+35+1 : charname_len+1+35+1+equiped_power_len])
+
+	next_i := charname_len + 1 + 35 + 1 + equiped_power_len
+	i := next_i
+	next_i = i + 4
+	power_cooldown := binary.LittleEndian.Uint32(char_section_region[i:next_i])
+
+	unknown2 := char_section_region[next_i : next_i+4]
+	number_of_items_in_inventory := binary.LittleEndian.Uint32(char_section_region[next_i+4 : next_i+4+4])
+
+	// fmt.Printf("charname_len: %d, % 20x\n", charname_len, char_section_region[0])
+	// fmt.Printf("charname: %s, % 20x\n", charname_from_file, char_section_region[1:charname_len+1])
+	// fmt.Printf("unknown1: % 20x\n", unknown1)
+	// fmt.Printf("equiped_power_len: %d\n", char_section_region[charname_len+1+35])
+	// fmt.Printf("equiped_power: %s, % 20x\n", equiped_power, char_section_region[charname_len+1+35+1:charname_len+1+35+1+equiped_power_len])
+	// power_cooldown_bytes := char_section_region[i:next_i]
+	// fmt.Printf("power_cooldown: %d, % 20x\n", power_cooldown, power_cooldown_bytes)
+	// // Max cooldown 1200s
+	// fmt.Println("power_cooldown: microseconds", power_cooldown/1000000)
+	// fmt.Printf("unknown2: %d, % 20x\n", unknown2, char_section_region[next_i:next_i+4])
+	// fmt.Printf("number_of_items_in_inventory: %d, % 20x\n", number_of_items_in_inventory, char_section_region[next_i+4:next_i+4+4])
+
+	char_data := &CharData{
+		CharnameLen:              uint8(charname_len),
+		Charname:                 string(charname_from_file),
+		Unknown1:                 unknown1,
+		EquipedPowerLen:          uint8(equiped_power_len),
+		EquipedPower:             equiped_power,
+		PowerCooldown:            power_cooldown,
+		Unknown2:                 binary.LittleEndian.Uint32(unknown2),
+		NumberOfItemsInInventory: number_of_items_in_inventory,
+		// ItemSection:,
+	}
+
+	// fmt.Printf("% 20x\n", char_section_region[:100])
+	// fmt.Println(char_data)
+
+	start_of_items_section := start_index + int(next_i+4+4)
+	items, _ := GetItemsNewMethod(int(number_of_items_in_inventory), start_of_items_section, data)
+	// fmt.Println(items)
+
+	char_data.ItemSection = items
+
+	return *char_data
+
+}
+
+func GetItemsNewMethod(number_of_items_in_inventory int, start_of_items_section int, data []byte) (items []ItemPayload, end_of_item_section_index int) {
+	item_data := data[start_of_items_section:]
+	byte_offset := 0
+
+	for i := 0; i < int(number_of_items_in_inventory); i++ {
+		offset := byte_offset
+		has_owner := false
+		owner := ""
+
+		item_name_len := uint8(item_data[offset])
+		if string(item_data[offset+int(item_name_len)+1+2:offset+int(item_name_len)+1+2+2]) != string([]byte{0, 0}) {
+			// using zero bytes in quantity to check if its quantity or string, if it's string it has owner
+			has_owner = true
 		}
+
+		item_name := string(item_data[offset+1 : offset+int(item_name_len)+1])
+		if has_owner {
+			// fmt.Println("HAS OWNER")
+			has_owner = true
+			second_name_len := uint8(item_data[offset+int(item_name_len)+1])
+			name_bytes := item_data[offset+int(item_name_len)+2 : offset+int(item_name_len+second_name_len)+2]
+			second_item_name := string(name_bytes)
+			item_name_len += second_name_len + 1
+
+			owner = item_name
+			item_name = second_item_name
+		}
+
+		// last_byte := item_data[byte_offset+int(item_name_len)+33]
+		// fmt.Println("last_byte", last_byte) // just for debugging
+
+		item_count := binary.LittleEndian.Uint32(item_data[offset+int(item_name_len)+1 : offset+int(item_name_len)+1+4])
+		unknown3 := item_data[offset+int(item_name_len)+1+4 : offset+int(item_name_len)+1+4+4]
+		x_coord_in_inventory := binary.LittleEndian.Uint32(item_data[offset+int(item_name_len)+1+4+4 : offset+int(item_name_len)+1+4+4+4])
+		y_coord_in_inventory := binary.LittleEndian.Uint32(item_data[offset+int(item_name_len)+1+4+4+4 : offset+int(item_name_len)+1+4+4+4+4])
+		unknown4 := item_data[offset+int(item_name_len)+1+4+4+4+4 : offset+int(item_name_len)+1+4+4+4+4+17]
+
+		// fmt.Println("item name len:", item_name_len)
+		// fmt.Println("item name:", item_name)
+		// fmt.Println("item count:", item_count)
+		// fmt.Println("unknown3:", unknown3)
+		// fmt.Println("x coord:", x_coord_in_inventory)
+		// fmt.Println("y coord::", y_coord_in_inventory)
+		// fmt.Println("unknown4:", unknown4)
+
+		full_payload := item_data[byte_offset : byte_offset+34+int(item_name_len)]
+
+		// fmt.Println(item_data[byte_offset : byte_offset+34+int(item_name_len)]) // full payload
+		// fmt.Println(item_data[byte_offset : byte_offset+44+int(item_name_len)]) // shows a bit of next item
+		// fmt.Println("-----")
+
+		item_payload := &ItemPayload{
+			ItemNameLen:       item_name_len,
+			ItemName:          item_name,
+			ItemCount:         item_count,
+			Unknown3:          binary.LittleEndian.Uint32(unknown3),
+			XcoordInInventory: x_coord_in_inventory,
+			YcoordInInventory: y_coord_in_inventory,
+			Unknown4:          unknown4,
+			HasOwner:          has_owner,
+			OwnerName:         owner,
+			ControlData: ItemControlData{
+				PayloadIndex:              start_of_items_section + byte_offset,
+				PayloadIndexStartingOnQty: start_of_items_section + byte_offset + int(item_name_len) + 1,
+				Payload:                   full_payload,
+				OriginalCount:             int(item_count),
+				// ModifiedCount int
+				// MaxCount      int
+				// ToModify      bool
+			},
+		}
+
+		byte_offset = byte_offset + int(item_name_len) + 1 + 4 + 4 + 4 + 4 + 17
+		items = append(items, *item_payload)
 	}
 
-	for _, v := range space_index {
-		s = s[:v+1] + string(unicode.ToUpper(rune(s[v+1]))) + s[v+2:]
-	}
-
-	return s
+	return items, byte_offset
 }
