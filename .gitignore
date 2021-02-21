@@ -6,6 +6,7 @@ recon
 output/
 vimacheater
 *.exe
-/bckp
+bckp/
 valheim-cheats
-/recon/*
+recon/*
+item_parser.go
