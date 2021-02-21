@@ -33,10 +33,11 @@ func renderApp() {
 	})
 
 	// Create and bind Go object to the UI
-	u := &gui.UiItems{
+	u := &gui.UiData{
 		Items: []parser.Item{},
 	}
 	ui.Bind("updateItems", u.UpdateItems)
+	ui.Bind("resetPowerCooldown", u.ResetPowerCooldown)
 	ui.Bind("getItems", u.GetItems)
 	ui.Bind("getChars", u.GetChars)
 

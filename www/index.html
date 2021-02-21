@@ -64,9 +64,18 @@
 			<div class="counter"></div>
 			<div class="btn-row">
 				<div class="btn items-get">Load Items</div>
-				<div class="btn items-save">Save Items</div>
+				<div class="btn items-save">Save Data</div>
 			</div>
 		</div>
+
+		<!-- Actions -->
+		<div class="flex-container">
+			<div class="counter"></div>
+			<div class="btn-row">
+				<div class="btn action-resetcooldown">Reset Cooldown</div>
+			</div>
+		</div>
+
 		<div class="break"></div>
 		<div class="container">
 			<ul></ul>
@@ -83,6 +92,9 @@
 			// const btnDecr = document.querySelector('.btn-decr');
 			const btnItemsSave = document.querySelector('.items-save');
 			const btnItemsGet = document.querySelector('.items-get');
+			const btnResetCooldown = document.querySelector('.action-resetcooldown');
+			
+			
 
 			// console.log(btnItemsSave);
 
@@ -134,6 +146,13 @@
 				// items_string = JSON.stringify(new_items)
 				// debug.innerText = `Debug: ${items_string}`;
 			};
+
+			btnResetCooldown.addEventListener('click', async () => {
+				// console.log("clicked update items");
+				alert('Cooldown Reset!')
+			
+				await resetPowerCooldown(); // Call Go function
+			});
 
 			btnItemsSave.addEventListener('click', async () => {
 				// console.log("clicked update items");

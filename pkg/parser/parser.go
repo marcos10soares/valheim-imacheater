@@ -208,12 +208,24 @@ func FindAllOccurrences(data []byte, searches []string) map[string][]int {
 
 func ModifyItemData(full_data []byte, items []Item) []byte {
 	for _, item := range items {
-		full_data[int(item.PayloadIndex)] = byte(item.ModifiedCount)
+		buf := make([]byte, 4)
+		binary.LittleEndian.PutUint32(buf, uint32(item.ModifiedCount))
+		for i, b := range buf {
+			full_data[int(item.PayloadIndex)+i] = b
+		}
 	}
 	return full_data
 }
 
-func LoadItems(character string, path string, filename string) (loadedItems []Item, FileData []byte) {
+func ModifyPowerCooldownData(full_data []byte, index uint32) []byte {
+	buf := []byte{0, 0, 0, 0}
+	for i, b := range buf {
+		full_data[int(index)+i] = b
+	}
+	return full_data
+}
+
+func LoadItems(character string, path string, filename string) (charData CharData, FileData []byte) {
 	// selected character
 	character_path := path + filename
 
@@ -223,23 +235,9 @@ func LoadItems(character string, path string, filename string) (loadedItems []It
 	fmt.Println(len(full_data))
 
 	// parse file
-	charData := ParseFileNewMethod(character, full_data)
+	charData = ParseFileNewMethod(character, full_data)
 
-	// create []Item because it's the struct already in use, refactor this later
-	for _, item := range charData.ItemSection {
-		// fmt.Println(item)
-		loadedItems = append(loadedItems, Item{
-			Name:          item.ItemName,
-			PayloadIndex:  item.ControlData.PayloadIndexStartingOnQty,
-			Payload:       item.ControlData.Payload,
-			OriginalCount: item.ControlData.OriginalCount,
-			ModifiedCount: item.ControlData.ModifiedCount,
-			MaxCount:      item.ControlData.MaxCount,
-			ToModify:      item.ControlData.ToModify,
-		})
-	}
-
-	return loadedItems, full_data
+	return charData, full_data
 }
 
 func ParseFileNewMethod(charname string, data []byte) CharData {
