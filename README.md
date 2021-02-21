@@ -15,8 +15,9 @@ This tool aims to allow any player to give items to himself, or change any inven
 Requires Chrome installed
 
 ## Releases
-[v1.0.0](https://github.com/marcos10soares/valheim-imacheater/releases/tag/1.0.0) - Features: Can modify item quantities
-[v1.0.1](https://github.com/marcos10soares/valheim-imacheater/releases/tag/1.0.0) - Fixed bug where names with spaces would not load items
+- [v1.0.0](https://github.com/marcos10soares/valheim-imacheater/releases/tag/1.0.0) - Features: Can modify item quantities
+- [v1.0.1](https://github.com/marcos10soares/valheim-imacheater/releases/tag/1.0.1) - Fixed bug where names with spaces would not load items
+- [v1.1.0](https://github.com/marcos10soares/valheim-imacheater/releases/tag/1.1.0) - Fixed bug where some items would not load, **added new feature to reset power cooldown** 🔥
 
 ## Warnings
 > Be careful when using the tool, it's not fully tested and has bugs, **DO NOT modify any "item listing" that does not have a name**, this is a known bug where the tool is picking up items that are not items and will corrupt your character if changed. (**Anyway, your character is always backed up to the `/bckp` folder where you run the cheat tools exe.**)
