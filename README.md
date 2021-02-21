@@ -41,13 +41,15 @@ Requires Chrome installed
 1. [x] Automatically get character data
 2. [x] Automatically backup character data
 3. [x] Successfully modify item quantities
-4. [ ] Successfully add new items to inventory  (in progress - already achieved it but not programmatically)
-5. [ ] Successfully change current active power (in progress)
-6. [ ] Successfully change skill levels
-7. [x] Create GUI Interface
-8. [ ] Create file with all items names and max limits for each
-9. [ ] Add verification for item max limits
-10. [ ] Add option to quick fix the game to optimize performance [valheim-increase-fps-performance](https://www.pcgamer.com/valheim-increase-fps-performance/)
+4. [x] Successfully reset power cooldown
+5. [ ] Successfully add new items to inventory  (in progress - already achieved it but not programmatically)
+6. [ ] Successfully change current active power (in progress)
+7. [ ] Successfully change skill levels
+8. [x] Create GUI Interface
+9. [ ] Create file with all items names and max limits for each (in progress)
+10. [ ] Add verification for item max limits
+11. [ ] Add option to quick fix the game to optimize performance [valheim-increase-fps-performance](https://www.pcgamer.com/valheim-increase-fps-performance/)
+12. [ ] Add pre-configured one-click builds (e.g. build for fighting boss, build for resource gathering, build for building) 
 
 ## Screenshots
 
