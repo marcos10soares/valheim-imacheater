@@ -35,7 +35,7 @@ Requires Chrome installed
 **Video:** [link](http://recordit.co/YoYBGWod7G)
 
 ## Known bugs
-- Some special characters in name may cause items not to load.
+- None.
 
 ## To Do
 1. [x] Automatically get character data
