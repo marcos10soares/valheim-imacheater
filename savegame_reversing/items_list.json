@@ -1,0 +1,47 @@
+[
+    {
+        "category": "armor",
+        "items":[
+            {
+                "name": "ArmorRagsLegs",
+                "max_qty": 1
+            },
+            {
+                "name": "ArmorRagsChest",
+                "max_qty": 1
+            },
+            {
+                "name": "ArmorLeatherChest",
+                "max_qty": 1
+            },
+            {
+                "name": "ArmorLeatherLegs",
+                "max_qty": 1
+            },
+            {
+                "name": "CapeHide",
+                "max_qty": 1
+            },
+            {
+                "name": "HelmetLeather",
+                "max_qty": 1
+            },
+            {
+                "name": "ArmorTrollLeatherChest",
+                "max_qty": 1
+            },
+            {
+                "name": "ArmorTrollLeatherLegs",
+                "max_qty": 1
+            },
+            {
+                "name": "CapeTrollHide",
+                "max_qty": 1
+            },
+            {
+                "name": "HelmetTrollLeather",
+                "max_qty": 1
+            }
+        ]
+    }   
+]
