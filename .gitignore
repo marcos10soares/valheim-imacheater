@@ -10,3 +10,4 @@ bckp/
 valheim-cheats
 recon/*
 item_parser.go
+scraper/valheim_fandom_cache/
