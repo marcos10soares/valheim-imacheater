@@ -40,13 +40,7 @@ func main() {
 		colly.CacheDir("./valheim_fandom_cache"),
 	)
 
-	// Create another collector to scrape item details
-	// detailCollector := c.Clone()
-
 	var items []Item
-
-	count := 0
-	// base_url := "https://valheim.fandom.com"
 
 	// Find and visit all links
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
@@ -61,24 +55,19 @@ func main() {
 	})
 
 	// check if this url contains an item and extract details of the item
-	// On every <aside> element with collection-product-card class call callback
+	// On every element with mw-parser-output class call callback
 	c.OnHTML(`.mw-parser-output`, func(e *colly.HTMLElement) {
-
-		// "h1[id=firstHeading]"
 		attrs := e.ChildAttrs("thead tr .pi-data-label", "data-source")
 
 		// check if is item
 		is_item := false
 		for _, attr := range attrs {
-			// w = attr
 			if attr == "weight" {
 				is_item = true
 			}
 		}
 
 		if is_item {
-			count++
-
 			item_id := ""
 			item_type := ""
 			item_usage := ""
@@ -89,6 +78,7 @@ func main() {
 
 			keys := e.ChildAttrs(".pi-item.pi-data", "data-source")
 			values := e.ChildTexts(".pi-item.pi-data .pi-data-value.pi-font")
+
 			// find value of attributes
 			for i, key := range keys {
 				if key == "id" {
@@ -106,6 +96,7 @@ func main() {
 			}
 
 			attrs_values := e.ChildTexts("tbody tr .pi-data-value")
+
 			// find value of attributes
 			for i, attr := range attrs {
 				if attr == "weight" {
@@ -127,14 +118,11 @@ func main() {
 				Stack:        item_stack,
 				Teleportable: item_teleportable,
 			}
-
 			items = append(items, item)
 		}
 	})
 
 	c.Visit("https://valheim.fandom.com/wiki/Items_List")
-
-	fmt.Println("final count:", count)
 
 	enc := json.NewEncoder(file)
 	enc.SetIndent("", "  ")
