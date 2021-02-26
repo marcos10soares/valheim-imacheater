@@ -23,7 +23,9 @@ type Item struct {
 }
 
 func main() {
-	fName := "../savegame_reversing/items_list.json"
+	var items []Item
+	// fName := "../savegame_reversing/items_list.json" // to replace existing
+	fName := "./items_list.json"
 	file, err := os.Create(fName)
 	if err != nil {
 		log.Fatalf("Cannot create file %q: %s\n", fName, err)
@@ -40,16 +42,17 @@ func main() {
 		colly.CacheDir("./valheim_fandom_cache"),
 	)
 
-	var items []Item
-
 	// Find and visit all links
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		url := e.Attr("href")
+
+		// filter links by starting with "/wiki/" and that do not contain ":" or "?"
 		if strings.HasPrefix(url, "/wiki/") && (!strings.Contains(url, ":")) && (!strings.Contains(url, "?")) {
 			e.Request.Visit(url)
 		}
 	})
 
+	// print "visiting" on envery request
 	c.OnRequest(func(r *colly.Request) {
 		fmt.Println("Visiting", r.URL)
 	})
@@ -68,13 +71,18 @@ func main() {
 		}
 
 		if is_item {
-			item_id := ""
-			item_type := ""
-			item_usage := ""
-			item_img_url := e.ChildAttr(".pi-image img", "src")
-			item_weight := ""
-			item_stack := ""
-			item_teleportable := ""
+			item := Item{
+				Name: e.ChildText("aside h2.pi-title"),
+				// Type:         item_type,
+				// InternalID:   item_id,
+				// Usage:        item_usage,
+				URL: e.Request.URL.String(),
+				// ImageURL:     item_img_url,
+				// Weight:       item_weight,
+				// Stack:        item_stack,
+				// Teleportable: item_teleportable,
+			}
+			item.ImageURL = e.ChildAttr(".pi-image img", "src")
 
 			keys := e.ChildAttrs(".pi-item.pi-data", "data-source")
 			values := e.ChildTexts(".pi-item.pi-data .pi-data-value.pi-font")
@@ -82,16 +90,16 @@ func main() {
 			// find value of attributes
 			for i, key := range keys {
 				if key == "id" {
-					item_id = values[i]
+					item.InternalID = values[i]
 				}
 				if key == "type" {
-					item_type = values[i]
+					item.Type = values[i]
 				}
 				if key == "usage" {
-					item_usage = values[i]
+					item.Usage = values[i]
 				}
 				if key == "teleport" {
-					item_teleportable = values[i]
+					item.Teleportable = values[i]
 				}
 			}
 
@@ -100,24 +108,13 @@ func main() {
 			// find value of attributes
 			for i, attr := range attrs {
 				if attr == "weight" {
-					item_weight = attrs_values[i]
+					item.Weight = attrs_values[i]
 				}
 				if attr == "stack" {
-					item_stack = attrs_values[i]
+					item.Stack = attrs_values[i]
 				}
 			}
 
-			item := Item{
-				Name:         e.ChildText("aside h2.pi-title"),
-				Type:         item_type,
-				InternalID:   item_id,
-				Usage:        item_usage,
-				URL:          e.Request.URL.String(),
-				ImageURL:     item_img_url,
-				Weight:       item_weight,
-				Stack:        item_stack,
-				Teleportable: item_teleportable,
-			}
 			items = append(items, item)
 		}
 	})

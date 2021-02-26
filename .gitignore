@@ -11,3 +11,4 @@ valheim-cheats
 recon/*
 item_parser.go
 scraper/valheim_fandom_cache/
+scraper/items_list.json
