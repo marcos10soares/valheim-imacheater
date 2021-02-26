@@ -46,7 +46,7 @@ Requires Chrome installed
 6. [ ] Successfully change current active power (in progress)
 7. [ ] Successfully change skill levels
 8. [x] Create GUI Interface
-9. [ ] Create file with all items names and max limits for each (in progress)
+9. [x] Create file with all items names and max limits for each (items_list.json)
 10. [ ] Add verification for item max limits
 11. [ ] Add option to quick fix the game to optimize performance [valheim-increase-fps-performance](https://www.pcgamer.com/valheim-increase-fps-performance/)
 12. [ ] Add pre-configured one-click builds (e.g. build for fighting boss, build for resource gathering, build for building) 
