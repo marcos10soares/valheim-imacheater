@@ -15,9 +15,10 @@ This tool aims to allow any player to give items to himself, or change any inven
 Requires Chrome installed
 
 ## Releases
-- [v1.0.0](https://github.com/marcos10soares/valheim-imacheater/releases/tag/1.0.0) - Features: Can modify item quantities
-- [v1.0.1](https://github.com/marcos10soares/valheim-imacheater/releases/tag/v1.0.1) - Fixed bug where names with spaces would not load items
+- [v1.2.0](https://github.com/marcos10soares/valheim-imacheater/releases/tag/v1.2.0) - Minor bug fixes, updated UI, added new UI button to change equipped items quantity to max quantity, **added new feature to change equipped power** 🔥
 - [v1.1.0](https://github.com/marcos10soares/valheim-imacheater/releases/tag/v1.1.0) - Fixed bug where some items would not load, **added new feature to reset power cooldown** 🔥
+- [v1.0.1](https://github.com/marcos10soares/valheim-imacheater/releases/tag/v1.0.1) - Fixed bug where names with spaces would not load items
+- [v1.0.0](https://github.com/marcos10soares/valheim-imacheater/releases/tag/1.0.0) - Features: Can modify item quantities
 
 ## Warnings
 > Be careful when using the tool, it's not fully tested and has bugs, **DO NOT modify any "item listing" that does not have a name**, this is a known bug where the tool is picking up items that are not items and will corrupt your character if changed. (**Anyway, your character is always backed up to the `/bckp` folder where you run the cheat tools exe.**)
@@ -45,13 +46,14 @@ If you find a bug please submit an issue.
 3. [x] Successfully modify item quantities
 4. [x] Successfully reset power cooldown
 5. [ ] Successfully add new items to inventory  (in progress - already achieved it but not programmatically)
-6. [ ] Successfully change current active power (in progress)
-7. [ ] Successfully change skill levels
-8. [x] Create GUI Interface
-9. [x] Create file with all items names and max limits for each (items_list.json)
-10. [ ] Add verification for item max limits
-11. [ ] Add option to quick fix the game to optimize performance [valheim-increase-fps-performance](https://www.pcgamer.com/valheim-increase-fps-performance/)
-12. [ ] Add pre-configured one-click builds (e.g. build for fighting boss, build for resource gathering, build for building) 
+6. [ ] Successfully change item levels (in progress - already achieved it but not programmatically)
+7. [x] Successfully change current active power
+8. [ ] Successfully change skill levels 
+9. [x] Create GUI Interface
+10. [x] Create file with all items names and max limits for each (items_list.json)
+11. [x] Add verification for item max limits
+12. [ ] Add option to quick fix the game to optimize performance [valheim-increase-fps-performance](https://www.pcgamer.com/valheim-increase-fps-performance/)
+13. [ ] Add pre-configured one-click builds (e.g. build for fighting boss, build for resource gathering, build for building) 
 
 ## Screenshots
 
