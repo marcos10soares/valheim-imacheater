@@ -31,7 +31,7 @@ func ReadNextBytes(file *os.File, number int64) []byte {
 
 	_, err := file.Read(bytes)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Error reading bytes: ", file.Name(), err)
 	}
 
 	return bytes
@@ -99,7 +99,7 @@ func GetCurrentUser() (*user.User, error) {
 func GetAllAvailableCharacters(dir string) []string {
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Error accessing characters dir: ", err)
 	}
 
 	var characters []string

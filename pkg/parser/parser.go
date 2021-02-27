@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"os"
+	"log"
 	"strings"
 	"vimacheater/pkg/utils"
 )
@@ -247,11 +245,12 @@ func ModifyPowerCooldownData(full_data []byte, index uint32) []byte {
 func LoadItems(character string, path string, filename string) (charData CharData, FileData []byte) {
 	// selected character
 	character_path := path + filename
+	log.Println("character_path:", character_path)
 
 	// read all data from selected character
 	full_data := utils.ReadFileFromPath(character_path)
 
-	fmt.Println(len(full_data))
+	log.Println("filesize:", len(full_data))
 
 	// parse file
 	charData = ParseFileNewMethod(character, full_data)
@@ -273,7 +272,6 @@ func ParseFileNewMethod(charname string, data []byte) CharData {
 	// instead of parsing the file looking for the name
 	// like the commented code above
 	charname = utils.MakeTitle(charname)
-	fmt.Println(charname)
 	start_index := strings.Index(string(data), charname) - 1
 
 	char_section_region := data[start_index:]
@@ -402,30 +400,19 @@ func GetItemsNewMethod(number_of_items_in_inventory int, start_of_items_section 
 	return items, byte_offset
 }
 
-func LoadDbItems() {
-	// Open our jsonFile
-	jsonFile, err := os.Open("./savegame_reversing/items_list.json")
-	// if we os.Open returns an error then handle it
-	if err != nil {
-		fmt.Println(err)
+func LoadDbItems(bytes []byte) {
+	if bytes == nil {
+		log.Panic("could not load json file")
 	}
-	fmt.Println("Successfully Opened items_list.json")
-	// defer the closing of our jsonFile so that we can parse it later on
-	defer jsonFile.Close()
-
-	// read our opened jsonFile as a byte array.
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-
 	// we unmarshal our byteArray which contains our
 	// jsonFile's content into 'db_items' which we defined on the beginning of the file
-	json.Unmarshal(byteValue, &db_items)
-
+	json.Unmarshal(bytes, &db_items)
 }
 
 func GetItemFromDbItemWithName(name string) DbItem {
 	for _, item := range db_items {
 		if item.InternalID == name {
-			fmt.Println(item.Name)
+			// fmt.Println(item.Name)
 			return item
 		}
 	}

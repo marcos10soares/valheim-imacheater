@@ -15,8 +15,19 @@ import (
 )
 
 func main() {
-	parser.LoadDbItems()
+	// setup log output file -- uncomment this for debugging
+	// f, err := os.OpenFile("logs.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	// if err != nil {
+	// 	log.Fatalf("error opening file: %v", err)
+	// }
+	// defer f.Close()
+	// log.SetOutput(f)
 
+	// load items from json
+	// parser.LoadDbItems(loadJsonFile())
+	parser.LoadDbItems(assets["/items_list.json"])
+
+	// render app
 	renderApp()
 }
 
@@ -25,7 +36,7 @@ func renderApp() {
 	customArgs := []string{}
 	ui, err := lorca.New("", "", 750, 800, customArgs...)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("lorca error:", err)
 	}
 	defer ui.Close()
 
@@ -53,7 +64,7 @@ func renderApp() {
 
 	ln, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Failed to start server:", err)
 	}
 	defer ln.Close()
 	go http.Serve(ln, http.FileServer(FS))

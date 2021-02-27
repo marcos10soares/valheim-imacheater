@@ -66,7 +66,7 @@ func (u *UiData) GetItems(character string) string {
 
 	b, err := json.Marshal(u.Items)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return ""
 	}
 	// fmt.Println("debug getitems: ", string(b))
@@ -134,6 +134,10 @@ func (u *UiData) UpdatePower(power string) {
 
 		buf_FileData[int(u.CharData.EquipedPowerLenIndex)] = byte(len(power))
 
+		// this byte might be a uint32 - be careful - to check in the future
+		weird_alone_byte_new := byte(int(buf_FileData[int(u.CharData.EquipedPowerLenIndex)-25]) - byte_difference)
+		buf_FileData[int(u.CharData.EquipedPowerLenIndex)-25] = weird_alone_byte_new
+
 		var new_buf []byte
 		new_buf = append(new_buf, buf_FileData[:int(u.CharData.EquipedPowerLenIndex)+1]...)
 		new_buf = append(new_buf, []byte(power)...)
@@ -150,7 +154,7 @@ func (u *UiData) UpdateItems(str string) {
 	var ints []int
 	err := json.Unmarshal([]byte(str), &ints)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Error updating items:", err)
 	}
 
 	for i, v := range ints {
@@ -186,13 +190,11 @@ func (u *UiData) GetChars() []string {
 
 	user, err := utils.GetCurrentUser()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("could not get current user: ", err)
 	}
 
 	if runtime.GOOS == "windows" { // production
 		path = user.HomeDir + utils.WinPath
-		// fmt.Println(path)
-
 	} else { // mac - for debugging
 		path = "files/" // bjørn
 	}
