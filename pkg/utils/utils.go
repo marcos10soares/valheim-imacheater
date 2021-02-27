@@ -244,3 +244,14 @@ func MakeTitle(s string) string {
 
 	return s
 }
+
+func StringSliceCheckIfContains(slice []string, val string) bool {
+	for _, item := range slice {
+		if item == val {
+			// return i, true
+			return true
+		}
+	}
+	// return -1, false
+	return false
+}

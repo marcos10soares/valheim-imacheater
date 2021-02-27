@@ -3,10 +3,15 @@ package parser
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"strings"
 	"vimacheater/pkg/utils"
 )
+
+var db_items []DbItem
 
 type Item struct {
 	Name          string
@@ -18,18 +23,30 @@ type Item struct {
 	ToModify      bool
 }
 
+type DbItem struct {
+	Name         string
+	Type         string
+	InternalID   string
+	Usage        string
+	URL          string
+	ImageURL     string
+	Weight       string
+	Stack        string
+	Teleportable string
+}
+
 // still not sure what to make of it
 // header has 72 bytes, where the first 4 is the filesize in little endian, minus the header size (72 bytes)
 type Header struct {
-	Field1 uint32 // filesize in little endian, minus the header size (72 bytes)
-	Field2 uint32 // unknown
-	Field3 uint32 // unknown
-	Field4 uint32 // unknown
-	Field5 uint32 // unknown
-	Field6 uint32 // unknown
-	Field7 uint32 // unknown
-	Field8 uint32 // unknown
-	Field9 uint32 // unknown
+	Filesize uint32 // filesize in little endian, minus some offset (minus the header size (72 bytes)?)
+	Field2   uint32 // unknown
+	Field3   uint32 // unknown
+	Field4   uint32 // unknown
+	Field5   uint32 // unknown
+	Field6   uint32 // unknown
+	Field7   uint32 // unknown
+	Field8   uint32 // unknown
+	Field9   uint32 // unknown
 }
 
 type ItemControlData struct {
@@ -49,6 +66,8 @@ type CharData struct {
 	EquipedPowerLen          uint8         // 1 byte
 	EquipedPowerLenIndex     uint32        // reference for accessing power name
 	EquipedPower             string        // variablen len
+	NewPowerToEquip          string        // string to save new power to equip
+	ModifyPowerEquiped       bool          // flag to check if have to modify power
 	PowerCooldownIndex       uint32        // reference for accessing cooldown
 	PowerCooldown            uint32        // 4 bytes
 	Unknown2                 uint32        // 4 bytes
@@ -298,6 +317,8 @@ func ParseFileNewMethod(charname string, data []byte) CharData {
 		PowerCooldown:            power_cooldown,
 		Unknown2:                 binary.LittleEndian.Uint32(unknown2),
 		NumberOfItemsInInventory: number_of_items_in_inventory,
+		NewPowerToEquip:          "",
+		ModifyPowerEquiped:       false,
 		// ItemSection:,
 	}
 
@@ -379,4 +400,34 @@ func GetItemsNewMethod(number_of_items_in_inventory int, start_of_items_section 
 	}
 
 	return items, byte_offset
+}
+
+func LoadDbItems() {
+	// Open our jsonFile
+	jsonFile, err := os.Open("./savegame_reversing/items_list.json")
+	// if we os.Open returns an error then handle it
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("Successfully Opened items_list.json")
+	// defer the closing of our jsonFile so that we can parse it later on
+	defer jsonFile.Close()
+
+	// read our opened jsonFile as a byte array.
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	// we unmarshal our byteArray which contains our
+	// jsonFile's content into 'db_items' which we defined on the beginning of the file
+	json.Unmarshal(byteValue, &db_items)
+
+}
+
+func GetItemFromDbItemWithName(name string) DbItem {
+	for _, item := range db_items {
+		if item.InternalID == name {
+			fmt.Println(item.Name)
+			return item
+		}
+	}
+	return DbItem{}
 }

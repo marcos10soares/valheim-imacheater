@@ -15,6 +15,8 @@ import (
 )
 
 func main() {
+	parser.LoadDbItems()
+
 	renderApp()
 }
 
@@ -34,10 +36,14 @@ func renderApp() {
 
 	// Create and bind Go object to the UI
 	u := &gui.UiData{
-		Items: []parser.Item{},
+		Items: []gui.UiItem{},
 	}
+
+	ui.Bind("updatePower", u.UpdatePower)
 	ui.Bind("updateItems", u.UpdateItems)
+	ui.Bind("saveData", u.SaveData)
 	ui.Bind("resetPowerCooldown", u.ResetPowerCooldown)
+	ui.Bind("getPowers", u.GetPowers)
 	ui.Bind("getItems", u.GetItems)
 	ui.Bind("getChars", u.GetChars)
 
