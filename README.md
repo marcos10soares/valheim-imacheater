@@ -37,6 +37,8 @@ Requires Chrome installed
 ## Known bugs
 - None.
 
+If you find a bug please submit an issue.
+
 ## To Do
 1. [x] Automatically get character data
 2. [x] Automatically backup character data
