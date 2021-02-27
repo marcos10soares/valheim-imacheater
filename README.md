@@ -21,7 +21,7 @@ Requires Chrome installed
 - [v1.0.0](https://github.com/marcos10soares/valheim-imacheater/releases/tag/1.0.0) - Features: Can modify item quantities
 
 ## Warnings
-> Be careful when using the tool, it's not fully tested and has bugs, **DO NOT modify any "item listing" that does not have a name**, this is a known bug where the tool is picking up items that are not items and will corrupt your character if changed. (**Anyway, your character is always backed up to the `/bckp` folder where you run the cheat tools exe.**)
+> Be careful when using the tool, there could be bugs that are not yet known. (**Anyway, your character is always backed up to the `/bckp` folder where you run the cheat tools exe.**)
 > Use it at your own risk, try it first with a new character you don't care for.
 
 ## Usage
@@ -31,7 +31,7 @@ Requires Chrome installed
 3. Run `valheim-cheats.exe` 
 4. Modify the quantities you would like and hit save (do not exceed the max quantities of the items or your character will become corrupted) - every time you hit save, a copy of your character data is created inside the folder `/bckp`
 
-**!!IMPORTANT!!: ALWAYS run the program with the game closed. Exit game, run program, relaunch the game**
+**!!IMPORTANT!!: No need to close the game, just logout of the world you're playing to use the cheat tool**
 
 **Video:** [link](http://recordit.co/YoYBGWod7G)
 
