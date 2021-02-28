@@ -38,7 +38,7 @@ async function listRender (jsonItems) {
 
     var header_maxcount = document.createElement("th");
     header_maxcount.classList.add("item-header-maxcount")
-    header_maxcount.textContent = "Max";
+    header_maxcount.textContent = "MaxQty";
 
     var header_actions = document.createElement("th");
     header_actions.classList.add("item-header-actions")
