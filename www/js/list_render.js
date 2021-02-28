@@ -24,13 +24,17 @@ async function listRender (jsonItems) {
     var header_row = document.createElement("tr");
     header_row.classList.add("item-header")
 
+    var header_thumb = document.createElement("th");
+    header_thumb.classList.add("item-header-thumb")
+    header_thumb.textContent = "Img";
+
     var header_name = document.createElement("th");
     header_name.classList.add("item-header-name")
     header_name.textContent = "Name";
 
     var header_count = document.createElement("th");
     header_count.classList.add("item-header-count")
-    header_count.textContent = "Count";
+    header_count.textContent = "Qty";
 
     var header_maxcount = document.createElement("th");
     header_maxcount.classList.add("item-header-maxcount")
@@ -40,6 +44,7 @@ async function listRender (jsonItems) {
     header_actions.classList.add("item-header-actions")
     header_actions.textContent = "Actions";
 
+    header_row.append(header_thumb);
     header_row.append(header_name);
     header_row.append(header_count);
     header_row.append(header_maxcount);
@@ -52,6 +57,14 @@ async function listRender (jsonItems) {
 
         var item_row = document.createElement("tr");
         item_row.classList.add("item-row")
+
+        var item_thumb = document.createElement("td");
+        item_thumb.classList.add("item-thumb")
+        var item_thumb_img = document.createElement("img");
+        item_thumb_img.classList.add("item-thumb-img");
+        item_thumb_img.setAttribute("src", "img/items/" + item.id + ".png");
+        item_thumb.append(item_thumb_img);
+        item_row.append(item_thumb);
 
         var item_name = document.createElement("td");
         item_name.classList.add("item-name")

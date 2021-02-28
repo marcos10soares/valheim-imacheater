@@ -8,6 +8,15 @@ html {
 }
 body { height: 100vh; align-items: center; justify-content: center; font-family: 'Helvetika Neue', Arial, sans-serif; }
 ul {list-style: none;margin: auto; padding: 20px;}
+td { padding: 10px; }
+table { 
+    border-spacing: 10px;
+    border-collapse: separate;
+    -webkit-border-radius:20px;
+    border-radius:20px;
+    background-color: #9710108c;
+    box-shadow: 0px 0px 20px #000000b8;
+}
 .container { display: flex; flex-wrap: wrap;}
 .logo { margin:auto !important; }
 .sub-logo {margin:auto; font-size: small; color: white;}
@@ -15,10 +24,12 @@ ul {list-style: none;margin: auto; padding: 20px;}
 .counter { text-transform: uppercase; color: #fff; font-weight: bold; font-size: 3rem; }
 .multi-selection {font-size: 18px;}
 
+.item-table-container{margin-top:20px;}
 .item-table {margin: auto;}
 .item-container {font-size: 28px; color: white;}
-.item-row { margin: 0.5rem -10px; }
+.item-row { margin: 0.5rem -10px; background-color: #00000024;text-align: center;}
 .item-name{margin: 0 10px;}
+.item-thumb-img{ margin:auto;}
 .count-input {width: 70px;font-size: 20px; text-align: center; }
 
 .power-selection-visible {
@@ -27,6 +38,7 @@ ul {list-style: none;margin: auto; padding: 20px;}
 .power-selection-hidden {
     display: none;
 }
+
 
 .btn-row { display: flex; align-items: center; margin: 1rem; }
 .btn { cursor: pointer; min-width: 4em; padding: 0.3em; border-radius: 5px; text-align: center; margin: 0 1rem; box-shadow: 0 6px #8b5e00; color: white; background-color: #E4B702; position: relative; font-weight: bold; }
