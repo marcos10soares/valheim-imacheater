@@ -58,7 +58,7 @@ If you find a bug please submit an issue.
 ## Screenshots
 
 ![modified item quantities](https://github.com/marcos10soares/valheim-imacheater/blob/main/readme-img/1.jpg?raw=true)
-![valheim cheat tool](https://github.com/marcos10soares/valheim-imacheater/blob/main/readme-img/demo.gif?raw=true)
+![valheim cheat tool](https://github.com/marcos10soares/valheim-imacheater/blob/main/readme-img/demo_new.gif?raw=true)
 
 
 ### How to build
