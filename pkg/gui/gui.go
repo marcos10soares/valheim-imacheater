@@ -54,6 +54,8 @@ func (u *UiData) GetItems(character string) string {
 				OriginalCount: item.ControlData.OriginalCount,
 				ModifiedCount: item.ControlData.ModifiedCount,
 				MaxCount:      item.ControlData.MaxCount,
+				Lvl:           int(item.Lvl),
+				LvlIndex:      item.LvlIndex,
 				ToModify:      item.ControlData.ToModify,
 			},
 		})
@@ -79,9 +81,14 @@ func (u *UiData) GetPowers() string {
 
 	var powers []string
 
-	availablePowers := []string{"GP_Eikthyr", "GP_TheElder", "GP_Bonemass", "GP_Moder", "GP_Yagluth"}
+	availablePowers := []string{"Eikthyr", "TheElder", "Bonemass", "Moder", "Yagluth"}
 
-	powers = append(powers, u.CharData.EquipedPower)
+	equiped_power := u.CharData.EquipedPower
+	if len(u.CharData.EquipedPower) > 3 {
+		equiped_power = equiped_power[3:]
+	}
+
+	powers = append(powers, equiped_power)
 	for _, power := range availablePowers {
 		if !utils.StringSliceCheckIfContains(powers, power) {
 			powers = append(powers, power)
@@ -108,6 +115,8 @@ func (u *UiData) ResetPowerCooldown() {
 func (u *UiData) UpdatePower(power string) {
 	u.Lock()
 	defer u.Unlock()
+
+	power = "GP_" + power
 
 	// check if already had a power, otherwise cannot do the change
 	if len(u.CharData.EquipedPower) != 0 {
@@ -147,18 +156,25 @@ func (u *UiData) UpdatePower(power string) {
 
 }
 
-func (u *UiData) UpdateItems(str string) {
-	u.Lock()
-	defer u.Unlock()
-
+func parseIntSlice(str string) []int {
 	var ints []int
 	err := json.Unmarshal([]byte(str), &ints)
 	if err != nil {
 		log.Fatal("Error updating items:", err)
 	}
+	return ints
+}
 
-	for i, v := range ints {
+func (u *UiData) UpdateItems(qty_str string, lvl_str string) {
+	u.Lock()
+	defer u.Unlock()
+
+	qty_ints := parseIntSlice(qty_str)
+	lvl_ints := parseIntSlice(lvl_str)
+
+	for i, v := range qty_ints {
 		u.Items[i].FileItem.ModifiedCount = v
+		u.Items[i].FileItem.ModifiedLvl = lvl_ints[i]
 	}
 	log.Println("Items updated.")
 
@@ -168,13 +184,6 @@ func (u *UiData) UpdateItems(str string) {
 	}
 
 	u.FileData = parser.ModifyItemData(u.FileData, items)
-
-	// fmt.Println("file_size: ", len(full_data))
-
-	// fmt.Printf("% 20x\n", full_data[:50])
-	// fmt.Printf("% 20x\n", full_data[int(u.CharData.EquipedPowerLenIndex)-10:int(u.CharData.EquipedPowerLenIndex)+200])
-	// fmt.Println(string(full_data[int(u.CharData.EquipedPowerLenIndex)-10 : int(u.CharData.EquipedPowerLenIndex)+200]))
-
 }
 
 func (u *UiData) SaveData() {

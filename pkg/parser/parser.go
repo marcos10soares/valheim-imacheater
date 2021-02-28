@@ -4,8 +4,11 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/json"
+	"fmt"
 	"log"
+	"os"
 	"strings"
+	"text/tabwriter"
 	"vimacheater/pkg/utils"
 )
 
@@ -18,6 +21,9 @@ type Item struct {
 	OriginalCount int
 	ModifiedCount int
 	MaxCount      int
+	Lvl           int
+	ModifiedLvl   int
+	LvlIndex      int
 	ToModify      bool
 }
 
@@ -81,9 +87,11 @@ type ItemPayload struct {
 	Unknown3          uint32 // 4 bytes
 	XcoordInInventory uint32 // 4 bytes
 	YcoordInInventory uint32 // 4 bytes
-	Unknown4          []byte // 16 bytes
+	Lvl               uint8  // 1 byte
+	Unknown4          []byte // 15 bytes
 	HasOwner          bool   // optional
 	OwnerName         string // optional
+	LvlIndex          int    // NOT PART OF PAYLOAD, just a position of the lvl byte
 }
 
 // func GetItemName(player_data string, start_byte_i int) string {
@@ -131,98 +139,6 @@ func FindAllOccurrences(data []byte, searches []string) map[string][]int {
 	return results
 }
 
-// func CleanItemMatches(full_data []byte, player_data_string string, i int, matches []int) []int {
-// 	var clean_matches []int
-// 	for _, match := range matches {
-// 		// items payload length is variable, this checks the item payload size
-// 		hasExtraByte := CheckIfItemPayloadHasExtraByte(player_data_string, match)
-// 		start_byte_i := match - 17
-// 		item_payload_size := 34
-// 		if hasExtraByte {
-// 			item_payload_size += 1
-// 		}
-
-// 		// get payload limits index
-// 		item_payload_start_byte := (i + start_byte_i)
-// 		end_byte_i := item_payload_start_byte + item_payload_size
-
-// 		// get payload
-// 		item_payload := []byte(full_data[item_payload_start_byte:end_byte_i])
-
-// 		//verify payload
-// 		if (string(item_payload[1:4]) != string([]byte{0, 0, 0})) || (string(item_payload[29:33]) != string([]byte{0, 0, 0, 0})) {
-// 			continue
-// 		}
-
-// 		clean_matches = append(clean_matches, match)
-// 	}
-// 	return clean_matches
-// }
-
-// func GetItems(matches []int, full_data []byte, player_data_string string, i int, character string) []Item {
-// 	totalItems := []Item{}
-
-// 	// file for debug only FOR DEBUG
-// 	// items_log_file_debug, err := os.Create(utils.Bckp_folder + character + "_itemslog_" + utils.GetTimestampString() + ".txt")
-// 	// if err != nil {
-// 	// 	log.Fatal(err)
-// 	// }
-// 	// defer items_log_file_debug.Close()
-
-// 	// write as a table
-// 	// w_debug := tabwriter.NewWriter(items_log_file_debug, 10, 2, 1, ' ', 0)
-// 	//// END OF DEBUG
-
-// 	// write as a table
-// 	// w := tabwriter.NewWriter(os.Stdout, 10, 2, 1, ' ', 0)
-// 	for _, match := range matches {
-// 		// items payload length is variable, this checks the item payload size
-// 		hasExtraByte := CheckIfItemPayloadHasExtraByte(player_data_string, match)
-// 		start_byte_i := match - 17
-// 		item_payload_size := 34
-// 		if hasExtraByte {
-// 			item_payload_size += 1
-// 		}
-
-// 		// get payload limits index
-// 		item_payload_start_byte := (i + start_byte_i)
-// 		end_byte_i := item_payload_start_byte + item_payload_size
-
-// 		// get item name (this string is modified for printing reasons, do not use for changing output file)
-// 		item_name := GetItemName(player_data_string, start_byte_i)
-
-// 		// get payload
-// 		item_payload := []byte(full_data[item_payload_start_byte:end_byte_i])
-
-// 		// save to items
-// 		totalItems = append(totalItems, Item{
-// 			Name:          item_name,
-// 			PayloadIndex:  item_payload_start_byte,
-// 			Payload:       item_payload,
-// 			OriginalCount: int(item_payload[0]),
-// 		})
-
-// 		// format string
-// 		// s_out := fmt.Sprintf("| %s\t| Count: %d\t| % 20x \t|", item_name, item_payload[0], item_payload)
-
-// 		// // add to table
-// 		// fmt.Fprintln(w, s_out)
-
-// 		// // add TO DEBUG table
-// 		// fmt.Fprintln(w_debug, s_out)
-
-// 		// fmt.Printf("name: %s :\t % 20x \t| len: %d, extra byte: %v\n", getItemName(player_data_string, start_byte_i), item_payload, len(item_payload), hasExtraByte)
-// 		// fmt.Printf("%+q", patterns)
-// 	}
-// 	// print table
-// 	// w.Flush()
-
-// 	// print to DEBUG file
-// 	// w_debug.Flush()
-
-// 	return totalItems
-// }
-
 func ModifyItemData(full_data []byte, items []Item) []byte {
 	for _, item := range items {
 		buf := make([]byte, 4)
@@ -230,6 +146,10 @@ func ModifyItemData(full_data []byte, items []Item) []byte {
 		for i, b := range buf {
 			full_data[int(item.PayloadIndex)+i] = b
 		}
+		// fmt.Printf("Name: %s | current_lvl: %20x | new_lvl:%20x \n", item.Name, full_data[int(item.PayloadIndex)+item.LvlIndex], item.Lvl)
+
+		// update item lvl
+		full_data[int(item.PayloadIndex)+item.LvlIndex] = byte(item.Lvl)
 	}
 	return full_data
 }
@@ -332,6 +252,8 @@ func GetItemsNewMethod(number_of_items_in_inventory int, start_of_items_section 
 	item_data := data[start_of_items_section:]
 	byte_offset := 0
 
+	// write as a table
+	w := tabwriter.NewWriter(os.Stdout, 10, 2, 1, ' ', 0)
 	for i := 0; i < int(number_of_items_in_inventory); i++ {
 		offset := byte_offset
 		has_owner := false
@@ -359,7 +281,9 @@ func GetItemsNewMethod(number_of_items_in_inventory int, start_of_items_section 
 		unknown3 := item_data[offset+int(item_name_len)+1+4 : offset+int(item_name_len)+1+4+4]
 		x_coord_in_inventory := binary.LittleEndian.Uint32(item_data[offset+int(item_name_len)+1+4+4 : offset+int(item_name_len)+1+4+4+4])
 		y_coord_in_inventory := binary.LittleEndian.Uint32(item_data[offset+int(item_name_len)+1+4+4+4 : offset+int(item_name_len)+1+4+4+4+4])
-		unknown4 := item_data[offset+int(item_name_len)+1+4+4+4+4 : offset+int(item_name_len)+1+4+4+4+4+17]
+		lvl_index := 4 + 4 + 4 + 5
+		lvl := item_data[offset+int(item_name_len)+1+lvl_index]
+		unknown4 := item_data[offset+int(item_name_len)+1+4+4+4+4+1 : offset+int(item_name_len)+1+4+4+4+4+17]
 
 		// for debugging
 		// fmt.Println("item name len:", item_name_len)
@@ -372,6 +296,12 @@ func GetItemsNewMethod(number_of_items_in_inventory int, start_of_items_section 
 
 		full_payload := item_data[byte_offset : byte_offset+34+int(item_name_len)]
 
+		// debugging
+		// format string
+		s_out := fmt.Sprintf("| %s\t| Count: %d\t| lvl: %d\t| % 20x \t|", item_name, item_count, lvl, full_payload)
+		// add to table
+		fmt.Fprintln(w, s_out)
+
 		item_payload := &ItemPayload{
 			ItemNameLen:       item_name_len,
 			ItemName:          item_name,
@@ -379,6 +309,8 @@ func GetItemsNewMethod(number_of_items_in_inventory int, start_of_items_section 
 			Unknown3:          binary.LittleEndian.Uint32(unknown3),
 			XcoordInInventory: x_coord_in_inventory,
 			YcoordInInventory: y_coord_in_inventory,
+			Lvl:               lvl,
+			LvlIndex:          lvl_index,
 			Unknown4:          unknown4,
 			HasOwner:          has_owner,
 			OwnerName:         owner,
@@ -396,6 +328,7 @@ func GetItemsNewMethod(number_of_items_in_inventory int, start_of_items_section 
 		byte_offset = byte_offset + int(item_name_len) + 1 + 4 + 4 + 4 + 4 + 17
 		items = append(items, *item_payload)
 	}
+	w.Flush()
 
 	return items, byte_offset
 }

@@ -10,7 +10,7 @@
 		<div class="container">
 			<img class="logo" src="img/logo.png" alt="">
 			<div class="break"></div>
-			<p class="sub-logo">I'macheater Cheating Tools v1.2.0</p>
+			<p class="sub-logo">I'macheater Cheating Tools v1.3.0</p>
 		</div>
 		
 		<!-- character selection -->
@@ -53,7 +53,7 @@
 		</div>
 
 		<!-- items list -->
-		<div>
+		<div class="item-table-container">
 			<table class="item-table">
 			</table>
 		</div>
@@ -86,9 +86,9 @@
 				return await updatePower(power);
 			}
 
-			async function goUpdateItems(item_values) {
+			async function goUpdateItems(qty_values, lvl_values) {
 				// Call Go function to update item count values
-				return await updateItems(item_values);
+				return await updateItems(qty_values, lvl_values);
 			}
 
 			async function goResetPowerCooldown() {

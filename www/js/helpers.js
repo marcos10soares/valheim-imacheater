@@ -25,4 +25,13 @@ function updateItemToMaxQty() {
     var inputs = document.getElementsByClassName("count-input");
     var max_counts = document.getElementsByClassName("item-maxcount"); 
     inputs[i].value = Number.isInteger(parseInt(max_counts[i].textContent)) ?max_counts[i].textContent : 1 ;
-};
+}
+
+function minmax(value, min, max) 
+{
+    if(parseInt(value) < min || isNaN(parseInt(value))) 
+        return min; 
+    else if(parseInt(value) > max) 
+        return max; 
+    else return value;
+}
