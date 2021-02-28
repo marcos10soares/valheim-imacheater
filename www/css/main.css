@@ -17,10 +17,20 @@ table {
     background-color: #9710108c;
     box-shadow: 0px 0px 20px #000000b8;
 }
+input[type=number] {
+    width: 100%;
+    padding: 20px 20px;
+    text-align: center;
+    box-sizing: border-box;
+    background-color: #ff878759;
+    border: 2px solid #97101026;
+    border-radius: 4px;
+    color: white;
+  }
 .container { display: flex; flex-wrap: wrap;}
 .logo { margin:auto !important; }
 .sub-logo {margin:auto; font-size: small; color: white;}
-.flex-container { display: flex; flex-direction: column; align-items: center; font-size: 28px; color: white;}
+.flex-container { margin-top:15px;display: flex; flex-direction: column; align-items: center; font-size: 28px; color: white;}
 .counter { text-transform: uppercase; color: #fff; font-weight: bold; font-size: 3rem; }
 .multi-selection {font-size: 18px;}
 
@@ -30,7 +40,7 @@ table {
 .item-row { margin: 0.5rem -10px; background-color: #00000024;text-align: center;}
 .item-name{margin: 0 10px;}
 .item-thumb-img{ margin:auto;}
-.count-input {width: 70px;font-size: 20px; text-align: center; }
+.item-input {width: 70px;font-size: 20px; text-align: center; }
 
 .power-selection-visible {
     display: block;
@@ -46,3 +56,24 @@ table {
 .btn:active{ box-shadow: 0 1px #8b5e00; top: 5px; }
 .debug {padding-top:20px;font-size: smaller !important; color: white; text-align: center; margin: auto;}
 .break { flex-basis: 100%; height: 0;}
+
+
+
+.flex-container select {
+    background-color: #e4b702c7;
+    border-radius: 8px;
+    color: white;
+    padding: 8px;
+    width: 250px;
+    /* border: none; */
+    border-color: #8b5e00;
+    font-size: 20px;
+    box-shadow: 0 5px 25px rgb(0 0 0 / 20%);
+    -webkit-appearance: button;
+    appearance: button;
+    outline: none;
+}
+
+.flex-container select option {
+padding: 30px;
+}

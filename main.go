@@ -34,7 +34,7 @@ func main() {
 func renderApp() {
 	utils.Init()
 	customArgs := []string{}
-	ui, err := lorca.New("", "", 750, 800, customArgs...)
+	ui, err := lorca.New("", "", 1200, 900, customArgs...)
 	if err != nil {
 		log.Fatal("lorca error:", err)
 	}
