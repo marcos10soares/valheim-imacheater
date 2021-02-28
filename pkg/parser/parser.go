@@ -149,7 +149,7 @@ func ModifyItemData(full_data []byte, items []Item) []byte {
 		// fmt.Printf("Name: %s | current_lvl: %20x | new_lvl:%20x \n", item.Name, full_data[int(item.PayloadIndex)+item.LvlIndex], item.Lvl)
 
 		// update item lvl
-		full_data[int(item.PayloadIndex)+item.LvlIndex] = byte(item.Lvl)
+		full_data[int(item.PayloadIndex)+item.LvlIndex] = byte(item.ModifiedLvl)
 	}
 	return full_data
 }
@@ -194,6 +194,9 @@ func ParseFileNewMethod(charname string, data []byte) CharData {
 	charname = utils.MakeTitle(charname)
 	start_index := strings.Index(string(data), charname) - 1
 
+	if start_index < 0 {
+		return CharData{}
+	}
 	char_section_region := data[start_index:]
 
 	charname_len := char_section_region[0]

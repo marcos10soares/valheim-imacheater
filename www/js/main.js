@@ -38,6 +38,7 @@ btnItemsSave.addEventListener('click', () => {
             // then save data
             goSaveData().then(()=>{
                 alert('Saved Data!');
+                loadItems();
             });
         });  
     });
@@ -45,6 +46,10 @@ btnItemsSave.addEventListener('click', () => {
 
 // Action to run when "Load Items" button is clicked
 btnItemsGet.addEventListener('click',  () => {
+    loadItems();
+});
+
+function loadItems() {
     // get Character Items
     goGetItems().then(jsonItems => {
         // Get Character Powers
@@ -71,7 +76,7 @@ btnItemsGet.addEventListener('click',  () => {
             listRender(jsonItems);
         });
     });
-});
+}
 
 // Render and Populate Chars list 
 const render = () => {

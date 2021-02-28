@@ -33,8 +33,8 @@ Requires Chrome installed
 4. Modify the quantities you would like and hit save (do not exceed the max quantities of the items or your character will become corrupted) - every time you hit save, a copy of your character data is created inside the folder `/bckp`
 
 **!!IMPORTANT!!: No need to close the game, just logout of the world you're playing to use the cheat tool**
-
-**Example Usage Video:** [link](https://youtu.be/A0wXfo-GB5U)
+**Example Usage Video v1.3.0:** [link](https://www.youtube.com/watch?v=LLhJQRQLTpc)
+**Example Usage Video v1.2.0:** [link](https://youtu.be/A0wXfo-GB5U)
 
 ## Known bugs
 - None.
