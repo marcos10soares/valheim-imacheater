@@ -2,11 +2,16 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 
+	"github.com/cheggaaa/pb/v3"
 	colly "github.com/gocolly/colly/v2"
 )
 
@@ -22,10 +27,33 @@ type Item struct {
 	Teleportable string
 }
 
+const fName = "../www/items_list.json" // to replace existing
+// const fName = "./items_list.json"
+
 func main() {
+	// flags for operation mode
+	scrapeMode := flag.Bool("scrape", false, "mode to scrape wiki, bool, -scrape to use")
+	downloadMode := flag.Bool("download", false, "mode to download images, bool, -download to use")
+	flag.Parse()
+
+	if *scrapeMode == false && *downloadMode == false {
+		fmt.Println("This program needs at least one argument. Use -h or --help for help.")
+		os.Exit(1)
+	}
+
+	if *scrapeMode {
+		fmt.Println("starting scraper...")
+		scrape()
+	}
+	if *downloadMode {
+		fmt.Println("downloading images...")
+		downloadImages()
+	}
+
+}
+
+func scrape() {
 	var items []Item
-	// fName := "../savegame_reversing/items_list.json" // to replace existing
-	fName := "./items_list.json"
 	file, err := os.Create(fName)
 	if err != nil {
 		log.Fatalf("Cannot create file %q: %s\n", fName, err)
@@ -126,4 +154,61 @@ func main() {
 
 	// Dump json to the standard output
 	enc.Encode(items)
+}
+
+func downloadImages() {
+	// Open our jsonFile
+	jsonFile, err := os.Open(fName)
+	// if we os.Open returns an error then handle it
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("Successfully Opened " + jsonFile.Name())
+	// defer the closing of our jsonFile so that we can parse it later on
+	defer jsonFile.Close()
+
+	// read our opened jsonFile as a byte array.
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	// we initialize our items array
+	var items []Item
+
+	// we unmarshal our byteArray which contains our
+	// jsonFile's content into 'items' which we defined above
+	json.Unmarshal(byteValue, &items)
+
+	// create and start new bar
+	bar := pb.StartNew(len(items))
+
+	for _, item := range items {
+		// fmt.Println(item.InternalID, item.ImageURL)
+		err := DownloadFile("../www/img/items/"+item.InternalID+".png", item.ImageURL)
+		if err != nil {
+			panic(err)
+		}
+		// fmt.Println("Downloaded: " + item.InternalID)
+		bar.Increment()
+	}
+	fmt.Println("Download complete.")
+	bar.Finish()
+}
+
+func DownloadFile(filepath string, url string) error {
+	// Get the data
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Create the file
+	out, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	// Write the body to file
+	_, err = io.Copy(out, resp.Body)
+	return err
 }
