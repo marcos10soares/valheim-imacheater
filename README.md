@@ -33,7 +33,7 @@ Requires Chrome installed
 
 **!!IMPORTANT!!: No need to close the game, just logout of the world you're playing to use the cheat tool**
 
-**Video:** [link](http://recordit.co/YoYBGWod7G)
+**Example Usage Video:** [link](https://youtu.be/A0wXfo-GB5U)
 
 ## Known bugs
 - None.
@@ -58,7 +58,6 @@ If you find a bug please submit an issue.
 ## Screenshots
 
 ![modified item quantities](https://github.com/marcos10soares/valheim-imacheater/blob/main/readme-img/1.jpg?raw=true)
-![new feature: reset power cooldown](https://github.com/marcos10soares/valheim-imacheater/blob/main/readme-img/3.png?raw=true)
 ![valheim cheat tool](https://github.com/marcos10soares/valheim-imacheater/blob/main/readme-img/demo.gif?raw=true)
 
 
