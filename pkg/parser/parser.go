@@ -209,7 +209,7 @@ func ParseFileNewMethod(charname string, data []byte) CharData {
 		// fmt.Println("nbr: ", (int(data[start_index-1]) + 16))
 		// log.Printf("% 20x \n", data[start_index+int(data[start_index-1])+14])
 
-		// it seems that all characters have this byte with the value of 0x18, so I'm using it to make sure i'm the character data region
+		// it seems that all characters have this byte with the value of 0x18, so I'm using it to make sure i'm in the character data region
 		byte_0x18 := data[start_index+int(data[start_index-1])+14]
 
 		if start_index <= 0 {

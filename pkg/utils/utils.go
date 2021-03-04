@@ -17,6 +17,8 @@ import (
 
 const WinPath = "\\AppData\\LocalLow\\IronGate\\Valheim\\characters\\"
 const MacPath = "files/" // for debugging
+const LinuxPath = "/.config/unity3d/IronGate/Valheim/"
+
 var CharactersFolder string
 
 const Bckp_folder = "./bckp/"
