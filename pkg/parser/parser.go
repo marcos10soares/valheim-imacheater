@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 	"text/tabwriter"
+	"time"
 	"vimacheater/pkg/utils"
 )
 
@@ -199,16 +200,32 @@ func ParseFileNewMethod(charname string, data []byte) CharData {
 		tmp_index := strings.Index(string(data[start_index:]), charname)
 
 		start_index += tmp_index
+		// log.Println("start_index:", start_index)
+
+		// log.Printf("name: %s | % 20x", charname, charname)
+		// log.Println("len:", data[start_index-1])
+		// log.Printf("% 20x", data[start_index:start_index+40])
+		// log.Printf("% 20x", data[start_index-9:start_index-1])
+		// fmt.Println("nbr: ", (int(data[start_index-1]) + 16))
+		// log.Printf("% 20x \n", data[start_index+int(data[start_index-1])+14])
+
+		// it seems that all characters have this byte with the value of 0x18, so I'm using it to make sure i'm the character data region
+		byte_0x18 := data[start_index+int(data[start_index-1])+14]
+
 		if start_index <= 0 {
 			return CharData{}
 		}
 
-		// checks if the leading byte of the name is the name size and if the previous 8 bytes are zeros
-		if int(data[start_index-1]) == len(charname) && string(data[start_index-9:start_index-1]) == string([]byte{0, 0, 0, 0, 0, 0, 0, 0}) {
+		// if byte_0x18 doesn't work, try to use the previous 4 bytes before the name
+		// && string(data[start_index-5:start_index-1]) == string([]byte{0, 0, 0, 0})
+		// checks if the leading byte of the name is the name size and if 15th byte has the value of 0x18
+		if int(data[start_index-1]) == len(charname) && byte_0x18 == 0x18 {
 			start_index--
 			break
 		}
 		start_index += 1
+
+		time.Sleep(time.Second * 5)
 	}
 
 	char_section_region := data[start_index:]
