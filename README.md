@@ -15,6 +15,7 @@ This tool aims to allow any player to give items to himself, or change any inven
 Requires Chrome installed
 
 ## Releases
+- [v1.4.0](https://github.com/marcos10soares/valheim-imacheater/releases/tag/v1.4.0) - fixed bug where map markers with the character name would crash the tool, **added new feature "godmode", to give infinite life** 
 - [v1.3.0](https://github.com/marcos10soares/valheim-imacheater/releases/tag/v1.3.0) - Added item max quantity verification, updated UI, added new UI button to change equipped items quantity to max quantity, **added new feature to change item levels, like sword lvl255** 🔥
 - [v1.2.0](https://github.com/marcos10soares/valheim-imacheater/releases/tag/v1.2.0) - Minor bug fixes, updated UI, added new UI button to change equipped items quantity to max quantity, **added new feature to change equipped power** 
 - [v1.1.0](https://github.com/marcos10soares/valheim-imacheater/releases/tag/v1.1.0) - Fixed bug where some items would not load, **added new feature to reset power cooldown** 🔥
@@ -31,6 +32,8 @@ Requires Chrome installed
 2. copy `valheim-cheats.exe` to that folder
 3. Run `valheim-cheats.exe` 
 4. Modify the quantities you would like and hit save (do not exceed the max quantities of the items or your character will become corrupted) - every time you hit save, a copy of your character data is created inside the folder `/bckp`
+
+Note: "Godmode" gives infinite life and is not persistent, you have to do it every time you logout
 
 **!!IMPORTANT!!: No need to close the game, just logout of the world you're playing to use the cheat tool**
 
@@ -57,7 +60,8 @@ If you find a bug please submit an issue.
 11. [x] Add verification for item max limits
 12. [ ] Add option to quick fix the game to optimize performance [valheim-increase-fps-performance](https://www.pcgamer.com/valheim-increase-fps-performance/)
 13. [ ] Add pre-configured one-click builds (e.g. build for fighting boss, build for resource gathering, build for building) 
-14. [ ] Change Life and Stamin to huge values (technically infinite - in progress)
+14. [x] Give Infinite Life 
+15. [ ] Change Life and Stamin to huge values (technically infinite - in progress)
 
 ## Screenshots
 
