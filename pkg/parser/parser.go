@@ -192,11 +192,25 @@ func ParseFileNewMethod(charname string, data []byte) CharData {
 	// instead of parsing the file looking for the name
 	// like the commented code above
 	charname = utils.MakeTitle(charname)
-	start_index := strings.Index(string(data), charname) - 1
 
-	if start_index < 0 {
-		return CharData{}
+	// look for where character region starts by searching for the character name and some flags
+	start_index := 0
+	for {
+		tmp_index := strings.Index(string(data[start_index:]), charname)
+
+		start_index += tmp_index
+		if start_index <= 0 {
+			return CharData{}
+		}
+
+		// checks if the leading byte of the name is the name size and if the previous 8 bytes are zeros
+		if int(data[start_index-1]) == len(charname) && string(data[start_index-9:start_index-1]) == string([]byte{0, 0, 0, 0, 0, 0, 0, 0}) {
+			start_index--
+			break
+		}
+		start_index += 1
 	}
+
 	char_section_region := data[start_index:]
 
 	charname_len := char_section_region[0]

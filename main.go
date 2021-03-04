@@ -54,6 +54,8 @@ func renderApp() {
 	ui.Bind("updateItems", u.UpdateItems)
 	ui.Bind("saveData", u.SaveData)
 	ui.Bind("resetPowerCooldown", u.ResetPowerCooldown)
+	ui.Bind("setInfiniteLife", u.SetInfiniteLife)
+	ui.Bind("removeInfiniteLife", u.RemoveInfiniteLife)
 	ui.Bind("getPowers", u.GetPowers)
 	ui.Bind("getItems", u.GetItems)
 	ui.Bind("getChars", u.GetChars)

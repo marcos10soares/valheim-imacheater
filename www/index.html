@@ -48,7 +48,9 @@
 		<div class="flex-container">
 			<div class="counter"></div>
 			<div class="btn-row">
-				<div class="btn action-resetcooldown">Reset Cooldown</div>
+				<div class="btn action-resetcooldown" onclick="goResetPowerCooldown()">Reset Cooldown</div>
+				<div class="btn action-give-infinite-life" onclick="goSetInfiniteLife()">Set Godmode</div>
+				<!-- <div class="btn action-give-infinite-life" onclick="goRemoveInfiniteLife()">Reset Godmode</div> -->
 			</div>
 		</div>
 
@@ -92,10 +94,25 @@
 			}
 
 			async function goResetPowerCooldown() {
+				alert('Cooldown Reset! Now click "Save Data" to save changes!')
 				// Call Go function to reset power cooldown
 				return await resetPowerCooldown();
 			}
 
+			async function goSetInfiniteLife() {
+				alert('Infinite Life Set! Now click "Save Data" to save changes!')
+				// Call Go function to give infinite life
+				return await setInfiniteLife();
+			}
+
+			async function goRemoveInfiniteLife() {
+				alert('Infinite Life Removed! Now click "Save Data" to save changes!')
+				// Call Go function to remove infinite life
+				return await removeInfiniteLife();
+			}
+
+			removeInfiniteLife
+			
 			async function goSaveData() {
 				// Call Go function to save changes to character file
 				return await saveData();

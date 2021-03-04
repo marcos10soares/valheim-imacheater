@@ -104,6 +104,30 @@ func (u *UiData) GetPowers() string {
 	return string(b)
 }
 
+func (u *UiData) SetInfiniteLife() {
+	u.Lock()
+	defer u.Unlock()
+
+	buf := []byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}
+	for i, b := range buf {
+		u.FileData[int(u.CharData.EquipedPowerLenIndex)-17+i] = b
+	}
+
+	log.Println("Set infinite life.")
+}
+
+func (u *UiData) RemoveInfiniteLife() {
+	u.Lock()
+	defer u.Unlock()
+
+	buf := []byte{0x00, 0x00, 0xc8, 0x41}
+	for i, b := range buf {
+		u.FileData[int(u.CharData.EquipedPowerLenIndex)-13+i] = b
+	}
+
+	log.Println("Remove infinite life.")
+}
+
 func (u *UiData) ResetPowerCooldown() {
 	u.Lock()
 	defer u.Unlock()
