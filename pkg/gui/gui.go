@@ -227,7 +227,7 @@ func (u *UiData) GetChars() []string {
 	}
 
 	if runtime.GOOS == "windows" {
-		// production path = user.HomeDir + utils.WinPath
+		path = user.HomeDir + utils.WinPath
 	} else if runtime.GOOS == "darwin" {
 		// mac - for debugging
 		path = utils.MacPath
