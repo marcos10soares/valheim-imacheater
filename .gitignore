@@ -7,7 +7,7 @@ output/
 vimacheater
 *.exe
 bckp/
-valheim-cheats
+valheim-cheats*
 recon/*
 item_parser.go
 scraper/valheim_fandom_cache/
