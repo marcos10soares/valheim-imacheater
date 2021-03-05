@@ -15,6 +15,8 @@ This tool aims to allow any player to give items to himself, or change any inven
 Requires Chrome installed
 
 ## Releases
+- [v1.4.2](https://github.com/marcos10soares/valheim-imacheater/releases/tag/v1.4.2) - linux support
+- [v1.4.1](https://github.com/marcos10soares/valheim-imacheater/releases/tag/v1.4.1) - bug fixes
 - [v1.4.0](https://github.com/marcos10soares/valheim-imacheater/releases/tag/v1.4.0) - fixed bug where map markers with the character name would crash the tool, **added new feature "godmode", to give infinite life** 
 - [v1.3.0](https://github.com/marcos10soares/valheim-imacheater/releases/tag/v1.3.0) - Added item max quantity verification, updated UI, added new UI button to change equipped items quantity to max quantity, **added new feature to change item levels, like sword lvl255** 🔥
 - [v1.2.0](https://github.com/marcos10soares/valheim-imacheater/releases/tag/v1.2.0) - Minor bug fixes, updated UI, added new UI button to change equipped items quantity to max quantity, **added new feature to change equipped power** 
