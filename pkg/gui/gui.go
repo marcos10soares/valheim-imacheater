@@ -226,11 +226,12 @@ func (u *UiData) GetChars() []string {
 		log.Fatal("could not get current user: ", err)
 	}
 
-	if runtime.GOOS == "windows" { // production
-		path = user.HomeDir + utils.WinPath
-	} else if runtime.GOOS == "darwin" { // mac - for debugging
-		path = utils.MacPath // bjørn
-	} else {
+	if runtime.GOOS == "windows" {
+		// production path = user.HomeDir + utils.WinPath
+	} else if runtime.GOOS == "darwin" {
+		// mac - for debugging
+		path = utils.MacPath
+	} else if runtime.GOOS == "linux" {
 		path = user.HomeDir + utils.LinuxPath
 	}
 	utils.CharactersFolder = path

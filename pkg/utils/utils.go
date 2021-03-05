@@ -17,7 +17,7 @@ import (
 
 const WinPath = "\\AppData\\LocalLow\\IronGate\\Valheim\\characters\\"
 const MacPath = "files/" // for debugging
-const LinuxPath = "/.config/unity3d/IronGate/Valheim/"
+const LinuxPath = "/.config/unity3d/IronGate/Valheim/characters/"
 
 var CharactersFolder string
 
