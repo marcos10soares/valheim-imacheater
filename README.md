@@ -1,6 +1,8 @@
 # valheim-imacheater
 Valheim cheating tool
 
+**DISCLAIMER: This project was created purely for research and academic reasons, as an educational proof of concept, do not use it to cause harm or for illegal purposes. Use this at your own risk.**
+
 ## Introduction
 This tool aims to allow any player to give items to himself, or change any inventory item type or quantity.
 
