@@ -1,22 +1,6 @@
 // Connect UI actions to Go functions
 const btnItemsSave = document.querySelector('.items-save');
 const btnItemsGet = document.querySelector('.items-get');
-// const btnResetCooldown = document.querySelector('.action-resetcooldown');
-// const btnGiveInfiniteLife = document.querySelector('.action-give-infinite-life');
-
-// // Action to run when "Reset Cooldown" button is clicked
-// btnResetCooldown.addEventListener('click', () => {
-//     alert('Cooldown Reset! Now click "Save Data" to save changes!')
-
-//     goResetPowerCooldown(); // Call Go function
-// });
-
-// // Action to run when "Give Infinite Life" button is clicked
-// btnGiveInfiniteLife.addEventListener('click', () => {
-//     alert('Infinite Life Set! Now click "Save Data" to save changes!')
-
-//     goSetInfiniteLife(); // Call Go function
-// });
 
 // Action to run when "Save Data" button is clicked
 btnItemsSave.addEventListener('click', () => {

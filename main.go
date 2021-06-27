@@ -24,8 +24,12 @@ func main() {
 	// log.SetOutput(f)
 
 	// load items from json
-	// parser.LoadDbItems(loadJsonFile())
 	parser.LoadDbItems(assets["/items_list.json"])
+
+	// bjørn comoser
+	charData, fileData := parser.LoadItems("bjørn", "./files/", "bjørn.fch")
+	fmt.Println(charData.Charname)
+	fileData[0] = 1
 
 	// render app
 	renderApp()
@@ -46,9 +50,7 @@ func renderApp() {
 	})
 
 	// Create and bind Go object to the UI
-	u := &gui.UiData{
-		Items: []gui.UiItem{},
-	}
+	u := gui.NewUIData()
 
 	ui.Bind("updatePower", u.UpdatePower)
 	ui.Bind("updateItems", u.UpdateItems)

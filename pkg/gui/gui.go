@@ -16,36 +16,40 @@ import (
 // Go types that are bound to the UI must be thread-safe, because each binding
 // is executed in its own goroutine. In this simple case we may use atomic
 // operations, but for more complex cases one should use proper synchronization.
-type UiData struct {
+
+// UIData is the data structure used to passa data between frontend and backend
+type UIData struct {
 	sync.Mutex
-	Items     []UiItem
+	Items     []uiItem
 	FileData  []byte
 	Character string
 	CharData  parser.CharData
 }
 
-type UiItem struct {
+type uiItem struct {
 	DbItem   parser.DbItem
 	FileItem parser.Item
 }
 
-// type UiChars struct {
-// 	sync.Mutex
-// 	Chars []string
-// }
+// NewUIData returns a UIData initialized
+func NewUIData() *UIData {
+	return &UIData{
+		Items: []uiItem{},
+	}
+}
 
-func (u *UiData) GetItems(character string) string {
+// GetItems fetches items from character
+func (u *UIData) GetItems(character string) string {
 	u.Lock()
 	defer u.Unlock()
 
 	// var loadedItems []parser.Item
-	var loadedItems []UiItem
-	charData, fileData := parser.LoadItems(character, utils.CharactersFolder, character+".fch")
+	var loadedItems []uiItem
+	charData, fileData := parser.LoadItems(character, utils.CharactersFolderPath, character+".fch")
 
 	// create []Item because it's the struct already in use, refactor this later
 	for _, item := range charData.ItemSection {
-		// fmt.Println(item)
-		loadedItems = append(loadedItems, UiItem{
+		loadedItems = append(loadedItems, uiItem{
 			DbItem: parser.GetItemFromDbItemWithName(item.ItemName),
 			FileItem: parser.Item{
 				Name:          item.ItemName,
@@ -63,7 +67,6 @@ func (u *UiData) GetItems(character string) string {
 	u.FileData = fileData
 	u.Items = loadedItems
 	u.CharData = charData
-
 	u.Character = character
 
 	b, err := json.Marshal(u.Items)
@@ -71,24 +74,23 @@ func (u *UiData) GetItems(character string) string {
 		log.Println(err)
 		return ""
 	}
-	// fmt.Println("debug getitems: ", string(b))
 	return string(b)
 }
 
-func (u *UiData) GetPowers() string {
+// GetPowers gets powers from character
+func (u *UIData) GetPowers() string {
 	u.Lock()
 	defer u.Unlock()
 
 	var powers []string
-
 	availablePowers := []string{"Eikthyr", "TheElder", "Bonemass", "Moder", "Yagluth"}
 
-	equiped_power := u.CharData.EquipedPower
+	equipedPower := u.CharData.EquipedPower
 	if len(u.CharData.EquipedPower) > 3 {
-		equiped_power = equiped_power[3:]
+		equipedPower = equipedPower[3:]
 	}
 
-	powers = append(powers, equiped_power)
+	powers = append(powers, equipedPower)
 	for _, power := range availablePowers {
 		if !utils.StringSliceCheckIfContains(powers, power) {
 			powers = append(powers, power)
@@ -100,11 +102,11 @@ func (u *UiData) GetPowers() string {
 		fmt.Println(err)
 		return ""
 	}
-	// fmt.Println("debug getitems: ", string(b))
 	return string(b)
 }
 
-func (u *UiData) SetInfiniteLife() {
+// SetInfiniteLife gives player infinite life
+func (u *UIData) SetInfiniteLife() {
 	u.Lock()
 	defer u.Unlock()
 
@@ -116,7 +118,8 @@ func (u *UiData) SetInfiniteLife() {
 	log.Println("Set infinite life.")
 }
 
-func (u *UiData) RemoveInfiniteLife() {
+// RemoveInfiniteLife removes infinite life ability from the player
+func (u *UIData) RemoveInfiniteLife() {
 	u.Lock()
 	defer u.Unlock()
 
@@ -128,7 +131,8 @@ func (u *UiData) RemoveInfiniteLife() {
 	log.Println("Remove infinite life.")
 }
 
-func (u *UiData) ResetPowerCooldown() {
+// ResetPowerCooldown resets player power cooldown
+func (u *UIData) ResetPowerCooldown() {
 	u.Lock()
 	defer u.Unlock()
 
@@ -136,7 +140,8 @@ func (u *UiData) ResetPowerCooldown() {
 	log.Println("Power Cooldown Reset.")
 }
 
-func (u *UiData) UpdatePower(power string) {
+// UpdatePower replaces the player equipped power with the given one
+func (u *UIData) UpdatePower(power string) {
 	u.Lock()
 	defer u.Unlock()
 
@@ -144,61 +149,55 @@ func (u *UiData) UpdatePower(power string) {
 
 	// check if already had a power, otherwise cannot do the change
 	if len(u.CharData.EquipedPower) != 0 {
-		buf_FileData := u.FileData
+		bufFileData := u.FileData
 
 		// get difference in power length
 		fmt.Println("equiped power: ", int(u.CharData.EquipedPowerLen))
 		fmt.Println("new power len: ", int(len(power)))
-		byte_difference := int(u.CharData.EquipedPowerLen) - int(len(power))
-		fmt.Println("byte_difference:", byte_difference)
-		// get current file size
-		current_file_size_bytes := binary.LittleEndian.Uint32(u.FileData[:4])
-		// add or subtract difference and create new file size
-		new_file_size := int(current_file_size_bytes) - byte_difference
+		byteDifference := int(u.CharData.EquipedPowerLen) - int(len(power))
+		fmt.Println("byte_difference:", byteDifference)
 
-		u.CharData.PowerCooldownIndex = uint32(int(u.CharData.PowerCooldownIndex) - byte_difference)
+		// get current file size
+		currentFileSizeBytes := binary.LittleEndian.Uint32(u.FileData[:4])
+
+		// add or subtract difference and create new file size
+		newFileSize := int(currentFileSizeBytes) - byteDifference
+
+		u.CharData.PowerCooldownIndex = uint32(int(u.CharData.PowerCooldownIndex) - byteDifference)
 
 		// update fileData with new filesize in little endian
 		buf := make([]byte, 4)
-		binary.LittleEndian.PutUint32(buf, uint32(new_file_size))
+		binary.LittleEndian.PutUint32(buf, uint32(newFileSize))
 		for i, b := range buf {
 			u.FileData[i] = b
 		}
 
-		buf_FileData[int(u.CharData.EquipedPowerLenIndex)] = byte(len(power))
+		bufFileData[int(u.CharData.EquipedPowerLenIndex)] = byte(len(power))
 
 		// this byte might be a uint32 - be careful - to check in the future
-		weird_alone_byte_new := byte(int(buf_FileData[int(u.CharData.EquipedPowerLenIndex)-25]) - byte_difference)
-		buf_FileData[int(u.CharData.EquipedPowerLenIndex)-25] = weird_alone_byte_new
+		weirdAloneByteNew := byte(int(bufFileData[int(u.CharData.EquipedPowerLenIndex)-25]) - byteDifference)
+		bufFileData[int(u.CharData.EquipedPowerLenIndex)-25] = weirdAloneByteNew
 
-		var new_buf []byte
-		new_buf = append(new_buf, buf_FileData[:int(u.CharData.EquipedPowerLenIndex)+1]...)
-		new_buf = append(new_buf, []byte(power)...)
-		new_buf = append(new_buf, buf_FileData[int(u.CharData.EquipedPowerLenIndex)+1+int(u.CharData.EquipedPowerLen):]...)
-		u.FileData = new_buf
+		var newBuf []byte
+		newBuf = append(newBuf, bufFileData[:int(u.CharData.EquipedPowerLenIndex)+1]...)
+		newBuf = append(newBuf, []byte(power)...)
+		newBuf = append(newBuf, bufFileData[int(u.CharData.EquipedPowerLenIndex)+1+int(u.CharData.EquipedPowerLen):]...)
+		u.FileData = newBuf
 	}
-
 }
 
-func parseIntSlice(str string) []int {
-	var ints []int
-	err := json.Unmarshal([]byte(str), &ints)
-	if err != nil {
-		log.Fatal("Error updating items:", err)
-	}
-	return ints
-}
-
-func (u *UiData) UpdateItems(qty_str string, lvl_str string) {
+// UpdateItems updates character items quantity and level
+// receives two json arrays as strings
+func (u *UIData) UpdateItems(qtyString string, lvlString string) {
 	u.Lock()
 	defer u.Unlock()
 
-	qty_ints := parseIntSlice(qty_str)
-	lvl_ints := parseIntSlice(lvl_str)
+	qty := parseIntSlice(qtyString)
+	lvl := parseIntSlice(lvlString)
 
-	for i, v := range qty_ints {
+	for i, v := range qty {
 		u.Items[i].FileItem.ModifiedCount = v
-		u.Items[i].FileItem.ModifiedLvl = lvl_ints[i]
+		u.Items[i].FileItem.ModifiedLvl = lvl[i]
 	}
 	log.Println("Items updated.")
 
@@ -210,12 +209,14 @@ func (u *UiData) UpdateItems(qty_str string, lvl_str string) {
 	u.FileData = parser.ModifyItemData(u.FileData, items)
 }
 
-func (u *UiData) SaveData() {
+// SaveData commits current changes to character file
+func (u *UIData) SaveData() {
 	utils.WriteOutputFile(u.FileData, u.Character)
 	log.Println("Items saved.")
 }
 
-func (u *UiData) GetChars() []string {
+// GetChars fetches available character files
+func (u *UIData) GetChars() []string {
 	u.Lock()
 	defer u.Unlock()
 
@@ -234,7 +235,16 @@ func (u *UiData) GetChars() []string {
 	} else if runtime.GOOS == "linux" {
 		path = user.HomeDir + utils.LinuxPath
 	}
-	utils.CharactersFolder = path
+	utils.CharactersFolderPath = path
 
 	return utils.GetAllAvailableCharacters(path)
+}
+
+func parseIntSlice(str string) []int {
+	var ints []int
+	err := json.Unmarshal([]byte(str), &ints)
+	if err != nil {
+		log.Fatal("Error updating items:", err)
+	}
+	return ints
 }

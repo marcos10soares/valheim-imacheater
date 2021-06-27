@@ -15,19 +15,27 @@ import (
 	"unicode"
 )
 
-const WinPath = "\\AppData\\LocalLow\\IronGate\\Valheim\\characters\\"
-const MacPath = "files/" // for debugging
-const LinuxPath = "/.config/unity3d/IronGate/Valheim/characters/"
+const (
+	// WinPath is the Windows relative path for the character files folder
+	WinPath = "\\AppData\\LocalLow\\IronGate\\Valheim\\characters\\"
+	// MacPath is the MacOS relative path for the character files folder
+	MacPath = "files/" // for debugging
+	// LinuxPath is the Linux relative path for the character files folder
+	LinuxPath = "/.config/unity3d/IronGate/Valheim/characters/"
+	// BckpFolder is the backup folder
+	BckpFolder = "./bckp/"
+)
 
-var CharactersFolder string
+// CharactersFolderPath is the absolute path for the characters folder
+var CharactersFolderPath string
 
-const Bckp_folder = "./bckp/"
-
+// Init - check if bckp folder exists otherwise creates it
 func Init() {
 	// check if bckp folder exists otherwise creates it
-	CreateBckpFolder(Bckp_folder)
+	CreateBckpFolder(BckpFolder)
 }
 
+// ReadNextBytes reads the next bytes of file
 func ReadNextBytes(file *os.File, number int64) []byte {
 	bytes := make([]byte, number)
 
@@ -39,6 +47,7 @@ func ReadNextBytes(file *os.File, number int64) []byte {
 	return bytes
 }
 
+// ReverseIntSlice reverts the order of an int slice
 func ReverseIntSlice(s []int) []int {
 	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
 		s[i], s[j] = s[j], s[i]
@@ -46,6 +55,7 @@ func ReverseIntSlice(s []int) []int {
 	return s
 }
 
+// ReverseString reverses a string
 func ReverseString(s string) (result string) {
 	for _, v := range s {
 		result = string(v) + result
@@ -53,12 +63,14 @@ func ReverseString(s string) (result string) {
 	return
 }
 
+// ReplaceAtIndex replaces a character in a string at an index
 func ReplaceAtIndex(in string, r rune, i int) string {
 	out := []rune(in)
 	out[i] = r
 	return string(out)
 }
 
+// CleanString cleans string from unwanted chars
 func CleanString(s string) string {
 	// Make a Regex to say we only want letters and numbers
 	reg, err := regexp.Compile("[^a-zA-Z0-9]+")
@@ -69,27 +81,29 @@ func CleanString(s string) string {
 	return processedString
 }
 
-func WriteOutputFile(full_data []byte, character string) {
-	path := CharactersFolder
+// WriteOutputFile writes data to character file
+func WriteOutputFile(fullData []byte, character string) {
+	path := CharactersFolderPath
 
-	character_filename := character + ".fch"
+	characterFilename := character + ".fch"
 
 	// backup original file
-	_, err := FileCopy(path+character_filename, Bckp_folder+character+"__"+GetTimestampString()+".fch")
+	_, err := FileCopy(path+characterFilename, BckpFolder+character+"__"+GetTimestampString()+".fch")
 	if err != nil {
 		log.Fatal("Could not backup original file.")
 	}
 
 	// update file
-	char_file, err := os.OpenFile(path+character_filename, os.O_RDWR, 0666)
+	charFile, err := os.OpenFile(path+characterFilename, os.O_RDWR, 0666)
 	if err != nil {
 		log.Fatal("Error while opening file", err)
 	}
-	char_file.Truncate(0)
-	char_file.Write(full_data)
-	char_file.Close()
+	charFile.Truncate(0)
+	charFile.Write(fullData)
+	charFile.Close()
 }
 
+// GetCurrentUser fetches current OS user
 func GetCurrentUser() (*user.User, error) {
 	usr, err := user.Current()
 	if err != nil {
@@ -98,6 +112,7 @@ func GetCurrentUser() (*user.User, error) {
 	return usr, err
 }
 
+// GetAllAvailableCharacters gets a list of character files
 func GetAllAvailableCharacters(dir string) []string {
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
@@ -117,6 +132,7 @@ func GetAllAvailableCharacters(dir string) []string {
 	return characters
 }
 
+// GetFileNameFromPath extracts a file name from a file path
 func GetFileNameFromPath(path string) string {
 	var filename string
 	var s []string
@@ -131,6 +147,7 @@ func GetFileNameFromPath(path string) string {
 	return filename
 }
 
+// FileCopy copy file
 func FileCopy(src, dst string) (int64, error) {
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
@@ -160,12 +177,14 @@ func FileCopy(src, dst string) (int64, error) {
 	return nBytes, err
 }
 
+// CreateBckpFolder creates a backup folder if it does not exist
 func CreateBckpFolder(path string) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		os.Mkdir(path, 0777)
 	}
 }
 
+// GetTimestampString gets a timestamp in string format from time now
 func GetTimestampString() string {
 	now := time.Now()
 	unixTimeUTC := time.Unix(now.Unix(), 0)
@@ -173,6 +192,7 @@ func GetTimestampString() string {
 	return strings.Replace(timestamp, ":", "_", -1)
 }
 
+// ListDirRecursively gets all files from a dir recursively
 func ListDirRecursively(root string) []string {
 	var files []string
 
@@ -188,27 +208,7 @@ func ListDirRecursively(root string) []string {
 	return files
 }
 
-// func GetCharNameFromPath(path string) string {
-// 	s := GetFileNameFromPath(path)
-// 	return
-// }
-
-// func WriteItemLogFile(charname string, data *tabwriter.Writer) {
-// 	f, err := os.Create(Bckp_folder + charname + "_itemslog_" + GetTimestampString() + ".txt")
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	defer f.Close()
-
-// 	_, err2 := f.WriteString(data)
-
-// 	if err2 != nil {
-// 		log.Fatal(err2)
-// 	}
-
-// 	fmt.Println("done")
-// }
-
+// ReadFileFromPath gets the data from a file
 func ReadFileFromPath(path string) []byte {
 	file, err := os.Open(path)
 	if err != nil {
@@ -216,37 +216,39 @@ func ReadFileFromPath(path string) []byte {
 	}
 
 	// get total amount of bytes
-	file_stats, err := file.Stat()
+	fileStats, err := file.Stat()
 	if err != nil {
 		log.Fatal("could not get file size", err)
 	}
-	file_size := file_stats.Size()
+	fileSize := fileStats.Size()
 	// fmt.Println("file size: ", file_size)
 
 	// read all data and close file
-	full_data := ReadNextBytes(file, file_size)
+	fullData := ReadNextBytes(file, fileSize)
 	file.Close()
 
-	return full_data
+	return fullData
 }
 
+// MakeTitle converts string to title case
 func MakeTitle(s string) string {
 	s = string(unicode.ToUpper(rune(s[0]))) + s[1:]
 
-	var space_index = []int{}
+	var spaceIndex = []int{}
 	for i := 0; i < len(s); i++ {
 		if unicode.IsSpace(rune(s[i])) {
-			space_index = append(space_index, i)
+			spaceIndex = append(spaceIndex, i)
 		}
 	}
 
-	for _, v := range space_index {
+	for _, v := range spaceIndex {
 		s = s[:v+1] + string(unicode.ToUpper(rune(s[v+1]))) + s[v+2:]
 	}
 
 	return s
 }
 
+// StringSliceCheckIfContains checks if string slice contains string
 func StringSliceCheckIfContains(slice []string, val string) bool {
 	for _, item := range slice {
 		if item == val {
@@ -254,6 +256,5 @@ func StringSliceCheckIfContains(slice []string, val string) bool {
 			return true
 		}
 	}
-	// return -1, false
 	return false
 }

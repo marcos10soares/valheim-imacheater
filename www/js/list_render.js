@@ -89,6 +89,7 @@ async function listRender (jsonItems) {
             // cell for lvl
             var item_lvl_cell = document.createElement("td");
             item_lvl_cell.classList.add("item-lvl");
+            
             // input for lvl
             var item_lvl = document.createElement("input");
             item_lvl.classList.add("lvl-input")
